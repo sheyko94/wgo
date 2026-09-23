@@ -57,8 +57,11 @@ function isWorldEvent(value: unknown): value is WorldEvent {
     && Array.isArray(event.observations) && event.observations.every(isObservation)
 }
 
-export async function fetchEvents(signal: AbortSignal): Promise<WorldEvent[]> {
-  const response = await fetch('/v1/events', { signal, headers: { Accept: 'application/json' } })
+export async function fetchEvents(signal: AbortSignal, query = ''): Promise<WorldEvent[]> {
+  const endpoint = query.trim()
+    ? `/v1/events/search?q=${encodeURIComponent(query.trim())}`
+    : '/v1/events'
+  const response = await fetch(endpoint, { signal, headers: { Accept: 'application/json' } })
   if (!response.ok) throw new Error(`Event request failed (${response.status})`)
   const data: unknown = await response.json()
   if (!Array.isArray(data) || !data.every(isWorldEvent)) {

@@ -81,6 +81,32 @@ public class EventIndex {
         }
     }
 
+    public List<EventCandidate> findSemanticCandidates(List<Double> embedding) {
+        validateEmbedding(embedding);
+        try {
+            SearchResponse<JsonData> response = client.search(
+                    search -> search.index(properties.indexName())
+                            .size(properties.topK())
+                            .minScore(properties.minimumSimilarity() + 1.0)
+                            .query(new Query.Builder()
+                                    .scriptScore(script -> script.query(query -> query.matchAll(matchAll -> matchAll))
+                                            .script(scoring -> scoring.inline(inline -> inline.source(
+                                                            "cosineSimilarity(params.query_vector, doc['embedding']) + 1.0")
+                                                    .params("query_vector", JsonData.of(embedding)))))
+                                    .build()),
+                    JsonData.class);
+            List<EventCandidate> candidates = response.hits().hits().stream()
+                    .map(hit -> new EventCandidate(UUID.fromString(hit.id()), hit.score() - 1.0))
+                    .toList();
+            log.info("Semantic search returned {} results ordered by similarity", candidates.size());
+            candidates.forEach(candidate -> log.info(
+                    "Semantic search result: eventId={}, similarity={}", candidate.eventId(), candidate.similarity()));
+            return candidates;
+        } catch (Exception exception) {
+            throw new IllegalStateException("Could not search events semantically", exception);
+        }
+    }
+
     private Query candidateQuery(GeoPoint location, Instant from, Instant to, List<Double> embedding) {
         Query geoDistance = new Query.Builder()
                 .geoDistance(distance -> distance.field("location")

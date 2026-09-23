@@ -113,6 +113,16 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
       const heading = document.createElement('h2')
       heading.textContent = event.title
       details.append(heading)
+      const expand = document.createElement('button')
+      expand.type = 'button'
+      expand.className = 'event-details-link'
+      expand.textContent = 'Details'
+      expand.addEventListener('click', (click) => {
+        click.stopPropagation()
+        popup.remove()
+        onOpenEvent(event)
+      })
+      details.append(expand)
       const fields = [
         ['Category', category.label],
         ['Started', new Date(event.startedAt).toLocaleString()],
@@ -130,16 +140,6 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
         list.append(term, description)
       }
       details.append(list)
-      const expand = document.createElement('button')
-      expand.type = 'button'
-      expand.className = 'event-details-link'
-      expand.textContent = 'Open full event details'
-      expand.addEventListener('click', (click) => {
-        click.stopPropagation()
-        popup.remove()
-        onOpenEvent(event)
-      })
-      details.append(expand)
       const observationsHeading = document.createElement('h3')
       observationsHeading.textContent = `Observations (${event.observations.length})`
       details.append(observationsHeading)
@@ -176,11 +176,13 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
         } else {
           activePopup?.remove()
           popup.setLngLat(marker.getLngLat()).addTo(map)
+          details.scrollTop = 0
           activePopup = popup
         }
       })
       if (event.id === selectedEventId) {
         popup.setLngLat(marker.getLngLat()).addTo(map)
+        details.scrollTop = 0
         activePopup = popup
       }
       return marker

@@ -73,9 +73,9 @@ improve and evaluate matching first, then add a visible event summary feature.
 
 ### 4. Semantic event search
 
-- [ ] Add a search box that finds events by meaning rather than exact keywords.
+- [x] Add a search box that finds events by meaning rather than exact keywords.
   For example, “travel disruptions” could find road closures and train interruptions.
-- [ ] Embed queries with the same model used for indexed events and search OpenSearch.
+- [x] Embed queries with the same model used for indexed events and search OpenSearch.
 - [ ] Combine semantic relevance with optional geographic and time filters.
 - [ ] Evaluate relevance and show useful empty/loading/error states in the UI.
 

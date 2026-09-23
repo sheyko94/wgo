@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { WorldMap } from '../map/WorldMap'
 import { categoryOf, eventCategories, fetchEvents } from './events'
 import type { EventCategory, WorldEvent } from './events'
 import { EventDetails } from './EventDetails'
+import { EventSearch } from './EventSearch'
 import './EventExplorer.css'
 
 function eventIdFromUrl() {
@@ -17,7 +18,9 @@ export function EventExplorer() {
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
   const [request, setRequest] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectedEvent, setSelectedEvent] = useState<WorldEvent | null>(null)
+  const [selectedMapEvent, setSelectedMapEvent] = useState<WorldEvent | null>(null)
   const [mapEventId, setMapEventId] = useState(eventIdFromUrl)
   const [mapViewState, setMapViewState] = useState(() => {
     const params = new URLSearchParams(window.location.search)
@@ -35,12 +38,15 @@ export function EventExplorer() {
 
   useEffect(() => {
     const controller = new AbortController()
-    fetchEvents(controller.signal)
+    fetchEvents(controller.signal, searchQuery)
       .then((data) => {
         if (!controller.signal.aborted) {
           setEvents(data)
           const eventFromUrl = eventIdFromUrl() && data.find((event) => event.id === eventIdFromUrl())
-          if (eventFromUrl && detailsPath) setSelectedEvent(eventFromUrl)
+          if (eventFromUrl) {
+            setSelectedMapEvent(eventFromUrl)
+            if (detailsPath) setSelectedEvent(eventFromUrl)
+          }
         }
       })
       .catch(() => {
@@ -50,7 +56,7 @@ export function EventExplorer() {
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [request, detailsPath])
+  }, [request, detailsPath, searchQuery])
 
   useEffect(() => {
     const url = new URL(window.location.href)
@@ -68,6 +74,18 @@ export function EventExplorer() {
   }, [detailsPath, mapEventId, mapViewState])
 
   const visibleEvents = events.filter((event) => categories.includes(categoryOf(event)))
+  const mapEvents = selectedMapEvent && !visibleEvents.some((event) => event.id === selectedMapEvent.id)
+    ? [selectedMapEvent, ...visibleEvents]
+    : visibleEvents
+  const openEvent = useCallback((event: WorldEvent) => {
+    setMapEventId(event.id)
+    setSelectedMapEvent(event)
+    setSelectedEvent(event)
+    const url = new URL(window.location.href)
+    url.pathname = `/event/${event.id}`
+    url.searchParams.delete('event')
+    window.history.pushState(null, '', url)
+  }, [])
 
   if (selectedEvent) {
     const currentEvent = events.find((event) => event.id === selectedEvent.id) ?? selectedEvent
@@ -94,6 +112,11 @@ export function EventExplorer() {
           setRequest((value) => value + 1)
         }}>{loading ? 'Loading…' : 'Refresh events'}</button>
       </div>
+      <EventSearch activeQuery={searchQuery} onQuery={(query) => {
+        setSearchQuery(query)
+        setLoading(true)
+        setFailed(false)
+      }} />
       {failed && <p className="events-error" role="alert">
         Couldn’t load events. Try refreshing.
         {events.length > 0 && ' Previously loaded events are still shown.'}
@@ -122,19 +145,12 @@ export function EventExplorer() {
         {visibleEvents.length === 0 ? 'No events match the selected categories.' : `${visibleEvents.length} of ${events.length} events shown`}
       </p>}
       <WorldMap
-        events={visibleEvents}
+        events={mapEvents}
         selectedEventId={mapEventId}
         viewState={mapViewState}
         onViewStateChange={setMapViewState}
         useCurrentLocation={!hasUrlViewState}
-        onOpenEvent={(event) => {
-          setMapEventId(event.id)
-          setSelectedEvent(event)
-          const url = new URL(window.location.href)
-          url.pathname = `/event/${event.id}`
-          url.searchParams.delete('event')
-          window.history.pushState(null, '', url)
-        }}
+        onOpenEvent={openEvent}
       />
     </>
   )
