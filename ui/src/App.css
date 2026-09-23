@@ -1,0 +1,35 @@
+.app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem) 2rem;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  min-height: 80px;
+  padding-block: 1rem;
+  border-bottom: 1px solid #d6dfd9;
+  color: #53645f;
+  font-size: 0.875rem;
+}
+
+.wordmark {
+  color: #18322d;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+}
+
+main {
+  padding-top: 2.5rem;
+}
+
+h1 {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  letter-spacing: -0.04em;
+}
+

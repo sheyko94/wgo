@@ -1,0 +1,16 @@
+# Shared local environment files; commit the example configuration.
+.env
+.env.*
+!.env.example
+
+# Operating system and editor files shared across components.
+.DS_Store
+Thumbs.db
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~

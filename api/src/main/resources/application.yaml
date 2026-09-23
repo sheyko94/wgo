@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: wgo
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/wgo}
+    username: ${DATABASE_USERNAME:wgo}
+    password: ${POSTGRES_PASSWORD:wgo}
+  flyway:
+    default-schema: wgo
+  jpa:
+    properties:
+      hibernate.default_schema: wgo
+
+wgo:
+  embedding:
+    provider: ${EMBEDDING_PROVIDER:fixed}
+    dimensions: ${EMBEDDING_DIMENSIONS:768}
+    bedrock:
+      endpoint: ${BEDROCK_ENDPOINT:https://bedrock-runtime.${AWS_REGION:us-east-1}.amazonaws.com}
+      region: ${AWS_REGION:us-east-1}
+      access-key: ${AWS_ACCESS_KEY_ID:test}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:test}
+      inference-model: ${BEDROCK_INFERENCE_MODEL:amazon.titan-embed-text-v2:0}
+  search:
+    endpoint: ${OPENSEARCH_ENDPOINT:http://localhost:${OPENSEARCH_PORT:9200}}
+    index-name: ${OPENSEARCH_INDEX:events-v1}
+    dimensions: ${EMBEDDING_DIMENSIONS:768}
+    top-k: ${MATCHING_TOP_K:20}
+    max-distance-meters: ${MATCHING_MAX_DISTANCE_METERS:10000}
+    time-window: ${MATCHING_TIME_WINDOW:PT24H}
+    minimum-similarity: ${MATCHING_MINIMUM_SIMILARITY:0.75}
+  sqs:
+    endpoint: ${SQS_ENDPOINT:http://localhost:${LOCALSTACK_PORT:4566}}
+    region: ${AWS_REGION:us-east-1}
+    access-key: ${AWS_ACCESS_KEY_ID:test}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:test}
+    observation-queue-name: ${OBSERVATION_QUEUE_NAME:observation-processing}

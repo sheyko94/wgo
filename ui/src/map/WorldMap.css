@@ -1,0 +1,119 @@
+.world-map {
+  position: relative;
+  margin-top: 2rem;
+  border: 1px solid #a3b9ac;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #eaf0eb;
+}
+
+.world-map-canvas {
+  width: 100%;
+  height: 65svh;
+  min-height: 360px;
+}
+
+.map-message {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 4rem;
+  width: fit-content;
+  max-width: calc(100% - 5rem);
+  padding: 0.75rem 1rem;
+  border: 1px solid #d6dfd9;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px #18322d15;
+  font-size: 0.875rem;
+}
+
+.map-message button {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  border-radius: 4px;
+  background: #18322d;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.world-map :focus-visible {
+  outline: 3px solid #21765b;
+  outline-offset: -3px;
+}
+
+.event-marker {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #b14322;
+  box-shadow: 0 1px 6px #18322d80;
+  cursor: pointer;
+}
+
+.event-marker:hover {
+  background: #843016;
+}
+
+.world-map .maplibregl-popup {
+  z-index: 3;
+}
+
+.event-details {
+  color: #18322d;
+  font-family: system-ui, sans-serif;
+  overflow-wrap: anywhere;
+  /* Leave room above or below a marker near the middle of the map. */
+  max-height: clamp(120px, calc(32.5svh - 60px), 260px);
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.event-details h2 {
+  font-size: 1rem;
+  line-height: 1.4;
+  padding-right: 0.5rem;
+}
+
+.event-details dl {
+  margin: 0.75rem 0 0;
+}
+
+.event-details dt {
+  font-weight: 600;
+}
+
+.event-details dd {
+  margin: 0 0 0.5rem;
+}
+
+.event-details h3 {
+  margin: 1rem 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.event-observations {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.event-observations li {
+  padding: 0.75rem 0;
+  border-top: 1px solid #d6dfd9;
+}
+
+.event-observations .observation-text {
+  color: #18322d;
+  white-space: pre-wrap;
+  margin-bottom: 0.5rem;
+}
+
+.event-observations time,
+.event-observations .observation-location {
+  color: #53645f;
+  font-size: 0.75rem;
+}

@@ -1,0 +1,24 @@
+# Maven build output and downloaded wrapper binary.
+target/
+/.mvn/wrapper/maven-wrapper.jar
+
+# Runtime logs and JVM crash dumps.
+*.log
+hs_err_pid*
+replay_pid*
+
+# Spring Tool Suite / Eclipse metadata.
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# NetBeans-generated project/build files.
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+/build/

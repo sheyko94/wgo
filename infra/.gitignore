@@ -1,0 +1,27 @@
+# Terraform downloads and local working directories.
+.terraform/
+
+# State and saved plans can contain credentials and other sensitive values.
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Local variable values; example templates remain versionable.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+!*.tfvars.json.example
+
+# Local overrides and CLI configuration.
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Terraform crash reports.
+crash.log
+crash.*.log
+
+# Keep .terraform.lock.hcl tracked for reproducible provider versions.

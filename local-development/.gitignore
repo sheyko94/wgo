@@ -1,0 +1,10 @@
+# Persistent Compose volumes and demo submission receipts.
+/data/
+
+# Local environment overrides; retain the example template if added.
+.env
+.env.*
+!.env.example
+
+# Local service and diagnostic logs.
+*.log

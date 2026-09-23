@@ -1,0 +1,116 @@
+name: wgo
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:17@sha256:f4c66b820c6f974249089d3d16d86a3698eae11e8746eb6644b2271031e91232
+    environment:
+      POSTGRES_DB: wgo
+      POSTGRES_USER: wgo
+      POSTGRES_PASSWORD: wgo
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - PGPASSWORD=wgo pg_isready -h 127.0.0.1 -U wgo -d wgo
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  adminer:
+    container_name: adminer
+    image: adminer:4.8.1@sha256:34d37131366c5aa84e1693dbed48593ed6f95fb450b576c1a7a59d3a9c9e8802
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${ADMINER_PORT:-8081}:8080"
+
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:4.14.0@sha256:3ebc37595918b8accb852f8048fef2aff047d465167edd655528065b07bc364a
+    environment:
+      SERVICES: sqs
+      SQS_ENDPOINT_STRATEGY: dynamic
+      AWS_DEFAULT_REGION: us-east-1
+      # Dummy credentials for the emulator, never real AWS credentials.
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      OBSERVATION_QUEUE_NAME: ${OBSERVATION_QUEUE_NAME:-observation-processing}
+    ports:
+      - "127.0.0.1:${LOCALSTACK_PORT:-4566}:4566"
+    healthcheck:
+      test:
+        - CMD
+        - awslocal
+        - sqs
+        - list-queues
+        - --region
+        - us-east-1
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  localstack-init:
+    container_name: localstack-init
+    image: localstack/localstack:4.14.0@sha256:3ebc37595918b8accb852f8048fef2aff047d465167edd655528065b07bc364a
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      OBSERVATION_QUEUE_NAME: ${OBSERVATION_QUEUE_NAME:-observation-processing}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - awslocal --endpoint-url=http://localstack:4566 sqs create-queue --queue-name "$${OBSERVATION_QUEUE_NAME}" --region "$${AWS_DEFAULT_REGION}"
+    restart: "no"
+
+  opensearch:
+    container_name: opensearch
+    image: opensearchproject/opensearch:3.8.0@sha256:fafe3fc3587088674669235575aa166228c48bdb940294a8cdbbc1da75236a40
+    environment:
+      discovery.type: single-node
+      bootstrap.memory_lock: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "127.0.0.1:${OPENSEARCH_PORT:-9200}:9200"
+    volumes:
+      - ./data/opensearch:/usr/share/opensearch/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl --fail --silent 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s' | grep -Eq '"status"[[:space:]]*:[[:space:]]*"(green|yellow)"'
+      interval: 10s
+      timeout: 10s
+      retries: 18
+      start_period: 40s
+
+  opensearch-dashboards:
+    container_name: opensearch-dashboards
+    image: opensearchproject/opensearch-dashboards:3.8.0@sha256:7fb7ec1b33f1ef49796dc31180f17f227361263c15bb19c56a8a6e5a38852bbd
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${OPENSEARCH_DASHBOARDS_PORT:-5601}:5601"

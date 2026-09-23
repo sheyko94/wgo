@@ -1,0 +1,28 @@
+# Dependencies and generated build/test output.
+node_modules/
+/dist/
+/dist-ssr/
+/coverage/
+*.tsbuildinfo
+
+# Local environment files (also applies when ui is used as its own repository).
+.env
+.env.*
+!.env.example
+*.local
+
+# Package-manager and development logs.
+logs/
+*.log
+
+# Local editor and operating system files.
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.swp
+*.swo
+*~

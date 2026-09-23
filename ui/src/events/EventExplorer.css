@@ -1,0 +1,32 @@
+.events-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.events-toolbar button {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #18322d;
+  border-radius: 6px;
+  background: #18322d;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.events-toolbar button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.events-toolbar button:focus-visible {
+  outline: 3px solid #21765b;
+  outline-offset: 3px;
+}
+
+.events-error {
+  color: #922f28;
+}

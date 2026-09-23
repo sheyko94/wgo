@@ -1,0 +1,642 @@
+[
+  {
+    "text": "[Map demo 001] Community gathering in Amsterdam (fictional)",
+    "location": {
+      "latitude": 52.3676,
+      "longitude": 4.9041
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 002] Road closure in Amsterdam (fictional)",
+    "location": {
+      "latitude": 52.3766,
+      "longitude": 4.9161
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 003] Outdoor concert in Amsterdam (fictional)",
+    "location": {
+      "latitude": 52.3556,
+      "longitude": 4.9121
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 004] Local market in Amsterdam (fictional)",
+    "location": {
+      "latitude": 52.3746,
+      "longitude": 4.8901
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 005] Public transport disruption in Amsterdam (fictional)",
+    "location": {
+      "latitude": 52.3596,
+      "longitude": 4.8931
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 006] Community gathering in London (fictional)",
+    "location": {
+      "latitude": 51.5074,
+      "longitude": -0.1278
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 007] Road closure in London (fictional)",
+    "location": {
+      "latitude": 51.5164,
+      "longitude": -0.1158
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 008] Outdoor concert in London (fictional)",
+    "location": {
+      "latitude": 51.4954,
+      "longitude": -0.1198
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 009] Local market in London (fictional)",
+    "location": {
+      "latitude": 51.5144,
+      "longitude": -0.1418
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 010] Public transport disruption in London (fictional)",
+    "location": {
+      "latitude": 51.4994,
+      "longitude": -0.1388
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 011] Community gathering in New York (fictional)",
+    "location": {
+      "latitude": 40.7128,
+      "longitude": -74.006
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 012] Road closure in New York (fictional)",
+    "location": {
+      "latitude": 40.7218,
+      "longitude": -73.994
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 013] Outdoor concert in New York (fictional)",
+    "location": {
+      "latitude": 40.7008,
+      "longitude": -73.998
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 014] Local market in New York (fictional)",
+    "location": {
+      "latitude": 40.7198,
+      "longitude": -74.02
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 015] Public transport disruption in New York (fictional)",
+    "location": {
+      "latitude": 40.7048,
+      "longitude": -74.017
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 016] Community gathering in San Francisco (fictional)",
+    "location": {
+      "latitude": 37.7749,
+      "longitude": -122.4194
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 017] Road closure in San Francisco (fictional)",
+    "location": {
+      "latitude": 37.7839,
+      "longitude": -122.4074
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 018] Outdoor concert in San Francisco (fictional)",
+    "location": {
+      "latitude": 37.7629,
+      "longitude": -122.4114
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 019] Local market in San Francisco (fictional)",
+    "location": {
+      "latitude": 37.7819,
+      "longitude": -122.4334
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 020] Public transport disruption in San Francisco (fictional)",
+    "location": {
+      "latitude": 37.7669,
+      "longitude": -122.4304
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 021] Community gathering in São Paulo (fictional)",
+    "location": {
+      "latitude": -23.5505,
+      "longitude": -46.6333
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 022] Road closure in São Paulo (fictional)",
+    "location": {
+      "latitude": -23.5415,
+      "longitude": -46.6213
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 023] Outdoor concert in São Paulo (fictional)",
+    "location": {
+      "latitude": -23.5625,
+      "longitude": -46.6253
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 024] Local market in São Paulo (fictional)",
+    "location": {
+      "latitude": -23.5435,
+      "longitude": -46.6473
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 025] Public transport disruption in São Paulo (fictional)",
+    "location": {
+      "latitude": -23.5585,
+      "longitude": -46.6443
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 026] Community gathering in Cape Town (fictional)",
+    "location": {
+      "latitude": -33.9249,
+      "longitude": 18.4241
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 027] Road closure in Cape Town (fictional)",
+    "location": {
+      "latitude": -33.9159,
+      "longitude": 18.4361
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 028] Outdoor concert in Cape Town (fictional)",
+    "location": {
+      "latitude": -33.9369,
+      "longitude": 18.4321
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 029] Local market in Cape Town (fictional)",
+    "location": {
+      "latitude": -33.9179,
+      "longitude": 18.4101
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 030] Public transport disruption in Cape Town (fictional)",
+    "location": {
+      "latitude": -33.9329,
+      "longitude": 18.4131
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 031] Community gathering in Nairobi (fictional)",
+    "location": {
+      "latitude": -1.2921,
+      "longitude": 36.8219
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 032] Road closure in Nairobi (fictional)",
+    "location": {
+      "latitude": -1.2831,
+      "longitude": 36.8339
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 033] Outdoor concert in Nairobi (fictional)",
+    "location": {
+      "latitude": -1.3041,
+      "longitude": 36.8299
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 034] Local market in Nairobi (fictional)",
+    "location": {
+      "latitude": -1.2851,
+      "longitude": 36.8079
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 035] Public transport disruption in Nairobi (fictional)",
+    "location": {
+      "latitude": -1.3001,
+      "longitude": 36.8109
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 036] Community gathering in Mumbai (fictional)",
+    "location": {
+      "latitude": 19.076,
+      "longitude": 72.8777
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 037] Road closure in Mumbai (fictional)",
+    "location": {
+      "latitude": 19.085,
+      "longitude": 72.8897
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 038] Outdoor concert in Mumbai (fictional)",
+    "location": {
+      "latitude": 19.064,
+      "longitude": 72.8857
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 039] Local market in Mumbai (fictional)",
+    "location": {
+      "latitude": 19.083,
+      "longitude": 72.8637
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 040] Public transport disruption in Mumbai (fictional)",
+    "location": {
+      "latitude": 19.068,
+      "longitude": 72.8667
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 041] Community gathering in Tokyo (fictional)",
+    "location": {
+      "latitude": 35.6762,
+      "longitude": 139.6503
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 042] Road closure in Tokyo (fictional)",
+    "location": {
+      "latitude": 35.6852,
+      "longitude": 139.6623
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 043] Outdoor concert in Tokyo (fictional)",
+    "location": {
+      "latitude": 35.6642,
+      "longitude": 139.6583
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 044] Local market in Tokyo (fictional)",
+    "location": {
+      "latitude": 35.6832,
+      "longitude": 139.6363
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 045] Public transport disruption in Tokyo (fictional)",
+    "location": {
+      "latitude": 35.6682,
+      "longitude": 139.6393
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 046] Community gathering in Sydney (fictional)",
+    "location": {
+      "latitude": -33.8688,
+      "longitude": 151.2093
+    },
+    "observedAt": "2026-08-01T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 047] Road closure in Sydney (fictional)",
+    "location": {
+      "latitude": -33.8598,
+      "longitude": 151.2213
+    },
+    "observedAt": "2026-08-04T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 048] Outdoor concert in Sydney (fictional)",
+    "location": {
+      "latitude": -33.8808,
+      "longitude": 151.2173
+    },
+    "observedAt": "2026-08-07T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 049] Local market in Sydney (fictional)",
+    "location": {
+      "latitude": -33.8618,
+      "longitude": 151.1953
+    },
+    "observedAt": "2026-08-10T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 050] Public transport disruption in Sydney (fictional)",
+    "location": {
+      "latitude": -33.8768,
+      "longitude": 151.1983
+    },
+    "observedAt": "2026-08-13T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 051] Community gathering in Reykjavík (fictional)",
+    "location": {
+      "latitude": 64.1466,
+      "longitude": -21.9426
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 052] Road closure in Nuuk (fictional)",
+    "location": {
+      "latitude": 64.1835,
+      "longitude": -51.7216
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 053] Outdoor concert in Anchorage (fictional)",
+    "location": {
+      "latitude": 61.2181,
+      "longitude": -149.9003
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 054] Local market in Vancouver (fictional)",
+    "location": {
+      "latitude": 49.2827,
+      "longitude": -123.1207
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 055] Public transport disruption in Mexico City (fictional)",
+    "location": {
+      "latitude": 19.4326,
+      "longitude": -99.1332
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 056] Community gathering in Havana (fictional)",
+    "location": {
+      "latitude": 23.1136,
+      "longitude": -82.3666
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 057] Road closure in Bogotá (fictional)",
+    "location": {
+      "latitude": 4.711,
+      "longitude": -74.0721
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 058] Outdoor concert in Lima (fictional)",
+    "location": {
+      "latitude": -12.0464,
+      "longitude": -77.0428
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 059] Local market in Santiago (fictional)",
+    "location": {
+      "latitude": -33.4489,
+      "longitude": -70.6693
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 060] Public transport disruption in Buenos Aires (fictional)",
+    "location": {
+      "latitude": -34.6037,
+      "longitude": -58.3816
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 061] Community gathering in Ushuaia (fictional)",
+    "location": {
+      "latitude": -54.8019,
+      "longitude": -68.303
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 062] Road closure in Lisbon (fictional)",
+    "location": {
+      "latitude": 38.7223,
+      "longitude": -9.1393
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 063] Outdoor concert in Oslo (fictional)",
+    "location": {
+      "latitude": 59.9139,
+      "longitude": 10.7522
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 064] Local market in Athens (fictional)",
+    "location": {
+      "latitude": 37.9838,
+      "longitude": 23.7275
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 065] Public transport disruption in Istanbul (fictional)",
+    "location": {
+      "latitude": 41.0082,
+      "longitude": 28.9784
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 066] Community gathering in Marrakesh (fictional)",
+    "location": {
+      "latitude": 31.6295,
+      "longitude": -7.9811
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 067] Road closure in Dakar (fictional)",
+    "location": {
+      "latitude": 14.7167,
+      "longitude": -17.4677
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 068] Outdoor concert in Lagos (fictional)",
+    "location": {
+      "latitude": 6.5244,
+      "longitude": 3.3792
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 069] Local market in Cairo (fictional)",
+    "location": {
+      "latitude": 30.0444,
+      "longitude": 31.2357
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 070] Public transport disruption in Antananarivo (fictional)",
+    "location": {
+      "latitude": -18.8792,
+      "longitude": 47.5079
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 071] Community gathering in Dubai (fictional)",
+    "location": {
+      "latitude": 25.2048,
+      "longitude": 55.2708
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 072] Road closure in Kathmandu (fictional)",
+    "location": {
+      "latitude": 27.7172,
+      "longitude": 85.324
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 073] Outdoor concert in Bangkok (fictional)",
+    "location": {
+      "latitude": 13.7563,
+      "longitude": 100.5018
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 074] Local market in Singapore (fictional)",
+    "location": {
+      "latitude": 1.3521,
+      "longitude": 103.8198
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 075] Public transport disruption in Jakarta (fictional)",
+    "location": {
+      "latitude": -6.2088,
+      "longitude": 106.8456
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 076] Community gathering in Seoul (fictional)",
+    "location": {
+      "latitude": 37.5665,
+      "longitude": 126.978
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 077] Road closure in Ulaanbaatar (fictional)",
+    "location": {
+      "latitude": 47.9184,
+      "longitude": 106.9177
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 078] Outdoor concert in Perth (fictional)",
+    "location": {
+      "latitude": -31.9505,
+      "longitude": 115.8605
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 079] Local market in Auckland (fictional)",
+    "location": {
+      "latitude": -36.8485,
+      "longitude": 174.7633
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  },
+  {
+    "text": "[Map demo 080] Public transport disruption in Honolulu (fictional)",
+    "location": {
+      "latitude": 21.3099,
+      "longitude": -157.8581
+    },
+    "observedAt": "2026-08-16T12:00:00Z"
+  }
+]
