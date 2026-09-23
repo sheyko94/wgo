@@ -123,12 +123,19 @@ Apply the Terraform queue and redrive policy configuration after LocalStack star
 
 ## OpenSearch and Dashboards
 
-Check cluster health and the `events-v1` index:
+`events-v1` is the stable OpenSearch alias. The concrete index includes the
+embedding provider/model and vector dimensions, for example
+`events-v1-fixed-768` or `events-v1-amazon-titan-embed-text-v2-0-768`.
+The alias is created when the first event is indexed and all application reads
+and writes use the alias.
+
+Check cluster health and the `events-v1` alias:
 
 ```sh
 curl --fail 'http://localhost:9200/_cluster/health?pretty'
 curl 'http://localhost:9200/_cat/indices?v'
 curl 'http://localhost:9200/events-v1/_count?pretty'
+curl 'http://localhost:9200/_alias/events-v1?pretty'
 curl 'http://localhost:9200/events-v1/_mapping?pretty'
 curl 'http://localhost:9200/events-v1/_search?pretty'
 ```

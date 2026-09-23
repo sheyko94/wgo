@@ -1,5 +1,7 @@
 package com.example.wgo.search;
 
+import com.example.wgo.configuration.BedrockProperties;
+import com.example.wgo.configuration.EmbeddingProperties;
 import com.example.wgo.configuration.OpenSearchProperties;
 import com.example.wgo.event.Event;
 import com.example.wgo.location.GeoPoint;
@@ -15,6 +17,7 @@ import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.Refresh;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.core.SearchResponse;
+import org.opensearch.client.opensearch.indices.update_aliases.Action;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,9 +27,11 @@ public class EventIndex {
 
     private final OpenSearchProperties properties;
     private final OpenSearchClient client;
+    private final EmbeddingProperties embeddingProperties;
+    private final BedrockProperties bedrockProperties;
 
     public void index(Event event, List<Double> embedding) {
-        log.debug("Indexing event id={} into index={}", event.getId(), properties.indexName());
+        log.debug("Indexing event id={} into index alias={}", event.getId(), properties.indexName());
         validateEmbedding(embedding);
         ensureIndex();
         Map<String, Object> document = new HashMap<>();
@@ -95,22 +100,49 @@ public class EventIndex {
     private void ensureIndex() {
         try {
             if (client.indices()
-                    .exists(request -> request.index(properties.indexName()))
+                    .existsAlias(request -> request.name(properties.indexName()))
                     .value()) {
                 return;
             }
-            client.indices().create(request -> request.index(properties.indexName())
-                    .mappings(mapping -> mapping.properties("title", property -> property.text(text -> text))
-                            .properties("location", property -> property.geoPoint(point -> point))
-                            .properties("startedAt", property -> property.date(date -> date))
-                            .properties("lastObservedAt", property -> property.date(date -> date))
-                            .properties(
-                                    "embedding",
-                                    property -> property.knnVector(vector -> vector.dimension(properties.dimensions())
-                                            .spaceType("cosinesimil")))));
+            String physicalIndex = physicalIndexName();
+            if (client.indices()
+                    .exists(request -> request.index(properties.indexName()))
+                    .value()) {
+                log.warn(
+                        "OpenSearch index={} is a legacy concrete index; alias migration is required",
+                        properties.indexName());
+                return;
+            }
+            if (!client.indices()
+                    .exists(request -> request.index(physicalIndex))
+                    .value()) {
+                client.indices().create(request -> request.index(physicalIndex).mappings(mapping -> mapping.properties(
+                                "title", property -> property.text(text -> text))
+                        .properties("location", property -> property.geoPoint(point -> point))
+                        .properties("startedAt", property -> property.date(date -> date))
+                        .properties("lastObservedAt", property -> property.date(date -> date))
+                        .properties(
+                                "embedding",
+                                property -> property.knnVector(vector -> vector.dimension(properties.dimensions())
+                                        .spaceType("cosinesimil")))));
+            }
+            client.indices()
+                    .updateAliases(
+                            request -> request.actions(Action.of(action -> action.add(add -> add.index(physicalIndex)
+                                    .alias(properties.indexName())
+                                    .isWriteIndex(true)))));
+            log.info("Created OpenSearch index={} and alias={}", physicalIndex, properties.indexName());
         } catch (Exception exception) {
             throw new IllegalStateException("Could not create OpenSearch index", exception);
         }
+    }
+
+    private String physicalIndexName() {
+        String model = embeddingProperties.provider().equalsIgnoreCase("bedrock")
+                ? bedrockProperties.inferenceModel()
+                : embeddingProperties.provider();
+        String safeModel = model.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-|-$)", "");
+        return properties.indexName() + "-" + safeModel + "-" + properties.dimensions();
     }
 
     private void validateEmbedding(List<Double> embedding) {
