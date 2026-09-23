@@ -10,19 +10,24 @@ Keep the current WGO name for now.
 
 ## Incremental UI plan
 
-1. Foundation (done): basic page, development setup, type checking, linting,
+1. [x] Foundation: basic page, development setup, type checking, linting,
    production build, and API proxy.
-2. Map (done): MapLibre GL JS, OpenFreeMap background, 2D zoom/pan, attribution,
+2. [x] Map: MapLibre GL JS, OpenFreeMap background, 2D zoom/pan, attribution,
    configurable style, and loading/error UI.
-3. Events (done): `GET /v1/events`, clickable markers, loading/error/empty states,
+3. [x] Events: `GET /v1/events`, clickable markers, loading/error/empty states,
    and manual refresh.
-4. Observations: add a backend observation read endpoint, display markers, and
+4. [x] Event details: expandable map popups, full event/observation details, and
+   URL-backed event selection and map position restoration.
+5. Observations: add a backend observation read endpoint, display markers, and
    toggle observation/event visibility.
-5. Creation: select coordinates on the map and submit `POST /v1/observations`.
+6. Creation: select coordinates on the map and submit `POST /v1/observations`.
    Explain processing state; events appear after the backend processes reports
    and the user refreshes.
 
 The backend creates or updates events through matching; the UI creates observations.
+
+- [x] Version OpenSearch event projections by embedding provider/model and dimensions,
+  and expose them through the stable `events-v1` alias.
 
 ## Future AI ideas
 

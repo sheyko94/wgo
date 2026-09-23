@@ -5,6 +5,12 @@ import type { EventCategory, WorldEvent } from './events'
 import { EventDetails } from './EventDetails'
 import './EventExplorer.css'
 
+function eventIdFromUrl() {
+  const params = new URLSearchParams(window.location.search)
+  const pathMatch = window.location.pathname.match(/^\/event\/([^/]+)$/)
+  return pathMatch?.[1] ?? params.get('event')
+}
+
 export function EventExplorer() {
   const [categories, setCategories] = useState<EventCategory[]>(Object.keys(eventCategories) as EventCategory[])
   const [events, setEvents] = useState<WorldEvent[]>([])
@@ -12,7 +18,7 @@ export function EventExplorer() {
   const [failed, setFailed] = useState(false)
   const [request, setRequest] = useState(0)
   const [selectedEvent, setSelectedEvent] = useState<WorldEvent | null>(null)
-  const [mapEventId, setMapEventId] = useState(() => new URLSearchParams(window.location.search).get('event'))
+  const [mapEventId, setMapEventId] = useState(eventIdFromUrl)
   const [mapViewState, setMapViewState] = useState(() => {
     const params = new URLSearchParams(window.location.search)
     const longitude = Number(params.get('longitude'))
@@ -22,6 +28,7 @@ export function EventExplorer() {
       ? { longitude, latitude, zoom }
       : { longitude: 10, latitude: 35, zoom: 2 }
   })
+  const detailsPath = /^\/event\/[^/]+$/.test(window.location.pathname)
   const hasUrlViewState = new URLSearchParams(window.location.search).has('longitude')
     && new URLSearchParams(window.location.search).has('latitude')
     && new URLSearchParams(window.location.search).has('zoom')
@@ -32,9 +39,8 @@ export function EventExplorer() {
       .then((data) => {
         if (!controller.signal.aborted) {
           setEvents(data)
-          const eventFromUrl = new URLSearchParams(window.location.search).get('event')
-            && data.find((event) => event.id === new URLSearchParams(window.location.search).get('event'))
-          if (eventFromUrl) setSelectedEvent(eventFromUrl)
+          const eventFromUrl = eventIdFromUrl() && data.find((event) => event.id === eventIdFromUrl())
+          if (eventFromUrl && detailsPath) setSelectedEvent(eventFromUrl)
         }
       })
       .catch(() => {
@@ -44,23 +50,34 @@ export function EventExplorer() {
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [request])
+  }, [request, detailsPath])
 
   useEffect(() => {
     const url = new URL(window.location.href)
-    if (mapEventId) url.searchParams.set('event', mapEventId)
-    else url.searchParams.delete('event')
+    if (detailsPath) {
+      url.searchParams.delete('event')
+    } else if (mapEventId) {
+      url.searchParams.set('event', mapEventId)
+    } else {
+      url.searchParams.delete('event')
+    }
     url.searchParams.set('longitude', mapViewState.longitude.toFixed(5))
     url.searchParams.set('latitude', mapViewState.latitude.toFixed(5))
     url.searchParams.set('zoom', mapViewState.zoom.toFixed(2))
     window.history.replaceState(null, '', url)
-  }, [mapEventId, mapViewState])
+  }, [detailsPath, mapEventId, mapViewState])
 
   const visibleEvents = events.filter((event) => categories.includes(categoryOf(event)))
 
   if (selectedEvent) {
     const currentEvent = events.find((event) => event.id === selectedEvent.id) ?? selectedEvent
-    return <EventDetails event={currentEvent} onBack={() => setSelectedEvent(null)} />
+    return <EventDetails event={currentEvent} onBack={() => {
+      const url = new URL(window.location.href)
+      url.pathname = '/'
+      url.searchParams.set('event', currentEvent.id)
+      window.history.replaceState(null, '', url)
+      setSelectedEvent(null)
+    }} />
   }
 
   return (
@@ -113,6 +130,10 @@ export function EventExplorer() {
         onOpenEvent={(event) => {
           setMapEventId(event.id)
           setSelectedEvent(event)
+          const url = new URL(window.location.href)
+          url.pathname = `/event/${event.id}`
+          url.searchParams.delete('event')
+          window.history.pushState(null, '', url)
         }}
       />
     </>

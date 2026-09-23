@@ -5,6 +5,7 @@ import com.example.wgo.configuration.EmbeddingProperties;
 import com.example.wgo.configuration.OpenSearchProperties;
 import com.example.wgo.event.Event;
 import com.example.wgo.location.GeoPoint;
+import jakarta.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -30,10 +31,18 @@ public class EventIndex {
     private final EmbeddingProperties embeddingProperties;
     private final BedrockProperties bedrockProperties;
 
+    @PostConstruct
+    void initializeIndexAtStartup() {
+        ensureIndex();
+        log.info(
+                "OpenSearch event projection is ready at startup: alias={}, physicalIndex={}",
+                properties.indexName(),
+                physicalIndexName());
+    }
+
     public void index(Event event, List<Double> embedding) {
         log.debug("Indexing event id={} into index alias={}", event.getId(), properties.indexName());
         validateEmbedding(embedding);
-        ensureIndex();
         Map<String, Object> document = new HashMap<>();
         document.put("title", event.getTitle());
         document.put("location", Map.of("lat", event.getLatitude(), "lon", event.getLongitude()));
@@ -53,7 +62,6 @@ public class EventIndex {
 
     public List<EventCandidate> findCandidates(GeoPoint location, Instant observedAt, List<Double> embedding) {
         validateEmbedding(embedding);
-        ensureIndex();
         Instant from = observedAt.minus(properties.timeWindow());
         Instant to = observedAt.plus(properties.timeWindow());
         try {
