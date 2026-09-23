@@ -3,6 +3,8 @@ package com.example.wgo.event;
 import com.example.wgo.location.GeoPoint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
@@ -10,10 +12,12 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity(name = "Event")
 @Table(name = "events")
 @Getter
+@Setter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class Event {
     @Id
@@ -21,6 +25,10 @@ public class Event {
 
     @Column(nullable = false)
     private String title;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventCategory category = EventCategory.OTHER;
 
     @Column(nullable = false)
     private double latitude;
@@ -44,6 +52,7 @@ public class Event {
     public Event(
             UUID id,
             String title,
+            EventCategory category,
             GeoPoint location,
             Instant startedAt,
             Instant lastObservedAt,
@@ -51,6 +60,7 @@ public class Event {
             Instant updatedAt) {
         this.id = id;
         this.title = title;
+        this.category = category == null ? EventCategory.OTHER : category;
         this.latitude = location.latitude();
         this.longitude = location.longitude();
         this.startedAt = startedAt;

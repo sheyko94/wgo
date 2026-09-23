@@ -1,6 +1,7 @@
 package com.example.wgo.matching;
 
 import com.example.wgo.event.Event;
+import com.example.wgo.event.EventCategorizer;
 import com.example.wgo.event.EventRepository;
 import com.example.wgo.observation.Observation;
 import com.example.wgo.observation.ObservationRepository;
@@ -22,6 +23,7 @@ public class ObservationEventMatcher {
     private final EventRepository events;
     private final EmbeddingService embeddings;
     private final EventIndex index;
+    private final EventCategorizer categorizer;
 
     @Transactional
     public MatchResult match(UUID observationId) {
@@ -39,6 +41,7 @@ public class ObservationEventMatcher {
             event = Event.builder()
                     .id(UUID.randomUUID())
                     .title(observation.text())
+                    .category(categorizer.categorize(observation.text()))
                     .location(observation.location())
                     .startedAt(observation.observedAt())
                     .lastObservedAt(observation.observedAt())
@@ -47,6 +50,9 @@ public class ObservationEventMatcher {
                     .build();
         } else {
             event.extendTimeRange(observation.observedAt());
+            // if (Objects.isNull(event.getCategory())) {
+            event.setCategory(categorizer.categorize(observation.text()));
+            // }
         }
         events.save(event);
         observation.assignToEvent(event.getId());

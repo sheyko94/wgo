@@ -5,10 +5,7 @@ node_modules/
 /coverage/
 *.tsbuildinfo
 
-# Local environment files (also applies when ui is used as its own repository).
-.env
-.env.*
-!.env.example
+# Environment configuration lives in the root .env (ignored by the root .gitignore).
 *.local
 
 # Package-manager and development logs.

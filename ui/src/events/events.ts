@@ -1,3 +1,18 @@
+export const eventCategories = {
+  TRANSPORT: { label: 'Transport', color: '#2563eb' },
+  WEATHER: { label: 'Weather', color: '#0891b2' },
+  COMMUNITY: { label: 'Community', color: '#7c3aed' },
+  FIRE: { label: 'Fire', color: '#dc2626' },
+  INFRASTRUCTURE: { label: 'Infrastructure', color: '#b45309' },
+  OTHER: { label: 'Other', color: '#64748b' },
+} as const
+
+export type EventCategory = keyof typeof eventCategories
+
+export function categoryOf(event: WorldEvent): EventCategory {
+  return event.category ?? 'OTHER'
+}
+
 export interface EventObservation {
   id: string
   text: string
@@ -10,6 +25,7 @@ export interface EventObservation {
 export interface WorldEvent {
   id: string
   title: string
+  category?: EventCategory
   latitude: number
   longitude: number
   startedAt: string
@@ -33,6 +49,7 @@ function isWorldEvent(value: unknown): value is WorldEvent {
   const event = value as Record<string, unknown>
   return typeof event.id === 'string'
     && typeof event.title === 'string'
+    && (event.category === undefined || (typeof event.category === 'string' && Object.hasOwn(eventCategories, event.category)))
     && typeof event.latitude === 'number' && Number.isFinite(event.latitude) && Math.abs(event.latitude) <= 90
     && typeof event.longitude === 'number' && Number.isFinite(event.longitude) && Math.abs(event.longitude) <= 180
     && typeof event.startedAt === 'string' && Number.isFinite(Date.parse(event.startedAt))

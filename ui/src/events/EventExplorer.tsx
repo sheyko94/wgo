@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { WorldMap } from '../map/WorldMap'
-import { fetchEvents } from './events'
-import type { WorldEvent } from './events'
+import { categoryOf, eventCategories, fetchEvents } from './events'
+import type { EventCategory, WorldEvent } from './events'
 import './EventExplorer.css'
 
 export function EventExplorer() {
+  const [categories, setCategories] = useState<EventCategory[]>(Object.keys(eventCategories) as EventCategory[])
   const [events, setEvents] = useState<WorldEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
@@ -24,6 +25,8 @@ export function EventExplorer() {
       })
     return () => controller.abort()
   }, [request])
+
+  const visibleEvents = events.filter((event) => categories.includes(categoryOf(event)))
 
   return (
     <>
@@ -46,7 +49,27 @@ export function EventExplorer() {
       {!loading && !failed && events.length === 0 && (
         <p>No events yet. Events appear after observations are processed. Refresh to check again.</p>
       )}
-      <WorldMap events={events} />
+      <fieldset className="category-filters">
+        <legend>Event categories</legend>
+        <div className="category-options">
+          {(Object.keys(eventCategories) as EventCategory[]).map((category) => (
+            <label key={category}>
+              <input type="checkbox" checked={categories.includes(category)} onChange={(change) => {
+                setCategories((selected) => change.target.checked
+                  ? [...selected, category] : selected.filter((value) => value !== category))
+              }} />
+              <span className="category-swatch" style={{ backgroundColor: eventCategories[category].color }} aria-hidden="true" />
+              {eventCategories[category].label}
+              <span>({events.filter((event) => categoryOf(event) === category).length})</span>
+            </label>
+          ))}
+        </div>
+        <button type="button" onClick={() => setCategories(Object.keys(eventCategories) as EventCategory[])}>Show all</button>
+      </fieldset>
+      {events.length > 0 && <p role="status">
+        {visibleEvents.length === 0 ? 'No events match the selected categories.' : `${visibleEvents.length} of ${events.length} events shown`}
+      </p>}
+      <WorldMap events={visibleEvents} />
     </>
   )
 }

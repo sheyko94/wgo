@@ -17,8 +17,9 @@ Run the backend separately using [the local development guide](../local-developm
 
 The UI loads events from `/v1/events` on startup and when you click Refresh events. Vite forwards
 `/v1` requests to `http://localhost:8080`, preserving their path. To change the
-backend address, copy `.env.example` to `.env.local`, edit `API_PROXY_TARGET`,
-and restart Vite. This server-side setting is not exposed to browser code.
+backend address, edit `API_PROXY_TARGET` in the repository root `.env`
+and restart Vite. Vite reads that shared file for development and builds;
+there is no separate UI environment file. This server-side setting is not exposed to browser code.
 Never put secrets in `VITE_` variables: those are exposed to the browser.
 
 ## Map
@@ -30,12 +31,19 @@ simple 2D view. Attribution stays visible at the bottom of the map.
 
 The map runs without the backend, but needs an internet connection to download
 its style, tiles, fonts, and icons, and a browser with WebGL support.
-To use another provider/style, set `VITE_MAP_STYLE_URL` in `ui/.env.local` and
+To use another provider/style, set `VITE_MAP_STYLE_URL` in the root `.env` and
 restart Vite (or rebuild for production). This is a public browser setting;
 use only browser-safe provider tokens if your chosen provider requires one.
 
-Events appear as clickable markers. Successful loads fit the map to the events;
-refresh replaces the markers and closes any open popup. Click a marker (or focus
+On initial map load, the browser requests location permission and centers the map
+near you at city scale when granted. Location requires HTTPS or localhost. If
+permission is denied, location is unavailable, or the request times out after
+10 seconds, the world view remains available. If you start navigating before the
+location arrives, your chosen view is preserved. Location is used only to position
+the map; it is not submitted to the WGO API.
+
+Events appear as clickable markers. Loading or refreshing events preserves the
+map view; refresh replaces the markers and closes any open popup. Click a marker (or focus
 it and press Enter/Space) to see its title, local start/last-observed times,
 coordinates, observation count, and ID. The popup also lists each linked
 observation’s text, local observation time, and coordinates, newest first. Scroll

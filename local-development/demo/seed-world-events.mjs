@@ -1,7 +1,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 
 // Local development only. Submit through the normal observation pipeline.
-const api = 'http://localhost:8080/v1'
+const api = `${(process.env.API_PROXY_TARGET || 'http://localhost:8080').replace(/\/$/, '')}/v1`
 const fixture = JSON.parse(await readFile(new URL('./world-observations.json', import.meta.url), 'utf8'))
 const receiptsUrl = new URL('../data/world-demo-receipts.json', import.meta.url)
 await mkdir(new URL('../data/', import.meta.url), { recursive: true })

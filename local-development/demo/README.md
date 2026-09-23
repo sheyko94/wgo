@@ -1,9 +1,10 @@
 # World map demo data
 
-With the local backend and its dependencies running, use Node.js 24:
+With the local backend and its dependencies running, use Node.js 24 from the
+repository root. The script uses API_PROXY_TARGET from the shared .env:
 
 ```sh
-node local-development/demo/seed-world-events.mjs
+node --env-file=.env local-development/demo/seed-world-events.mjs
 ```
 
 This adds 80 fictional reports through `POST /v1/observations` and waits for the

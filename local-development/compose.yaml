@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: wgo
       POSTGRES_USER: wgo
-      POSTGRES_PASSWORD: wgo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -15,7 +15,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - PGPASSWORD=wgo pg_isready -h 127.0.0.1 -U wgo -d wgo
+        - PGPASSWORD="$${POSTGRES_PASSWORD}" pg_isready -h 127.0.0.1 -U wgo -d wgo
       interval: 10s
       timeout: 5s
       retries: 12
@@ -38,7 +38,7 @@ services:
     environment:
       SERVICES: sqs
       SQS_ENDPOINT_STRATEGY: dynamic
-      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_REGION: ${AWS_REGION:-us-east-1}
       # Dummy credentials for the emulator, never real AWS credentials.
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
@@ -52,7 +52,7 @@ services:
         - sqs
         - list-queues
         - --region
-        - us-east-1
+        - ${AWS_REGION:-us-east-1}
       interval: 10s
       timeout: 10s
       retries: 12
@@ -65,7 +65,7 @@ services:
       localstack:
         condition: service_healthy
     environment:
-      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_REGION: ${AWS_REGION:-us-east-1}
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       OBSERVATION_QUEUE_NAME: ${OBSERVATION_QUEUE_NAME:-observation-processing}

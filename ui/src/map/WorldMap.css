@@ -55,7 +55,7 @@
 }
 
 .event-marker:hover {
-  background: #843016;
+  filter: brightness(0.8);
 }
 
 .world-map .maplibregl-popup {

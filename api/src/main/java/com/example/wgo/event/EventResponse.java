@@ -7,6 +7,7 @@ import java.util.UUID;
 public record EventResponse(
         UUID id,
         String title,
+        EventCategory category,
         double latitude,
         double longitude,
         Instant startedAt,

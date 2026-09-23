@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { LngLatBounds, Map, Marker, NavigationControl, Popup, setWorkerUrl } from 'maplibre-gl'
+import { Map, Marker, NavigationControl, Popup, setWorkerUrl } from 'maplibre-gl'
+import { categoryOf, eventCategories } from '../events/events'
 import type { WorldEvent } from '../events/events'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -21,6 +22,8 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
 
     let map: Map | undefined
     let resizeObserver: ResizeObserver | undefined
+    let disposed = false
+    let userMovedMap = false
 
     try {
       map = new Map({
@@ -28,6 +31,7 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
         style: mapStyle,
         center: [10, 35],
         zoom: 2,
+        renderWorldCopies: false,
         pitch: 0,
         maxPitch: 0,
         dragRotate: false,
@@ -38,7 +42,23 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
       map.touchZoomRotate.disableRotation()
       map.keyboard.disableRotation()
       map.addControl(new NavigationControl({ showCompass: false }), 'top-right')
-      map.on('load', () => setStatus('ready'))
+      map.on('movestart', (event) => {
+        if (event.originalEvent) userMovedMap = true
+      })
+      map.once('load', () => {
+        setStatus('ready')
+        if (!navigator.geolocation) return
+
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => {
+            // A delayed location result must not interrupt navigation or a new map instance.
+            if (disposed || userMovedMap) return
+            map?.jumpTo({ center: [coords.longitude, coords.latitude], zoom: 10 })
+          },
+          () => { /* Keep the world view when location is denied or unavailable. */ },
+          { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 },
+        )
+      })
       map.on('error', () => setStatus('error'))
       map.getCanvas().setAttribute('aria-label', 'World map. Use arrow keys to pan and plus or minus to zoom.')
 
@@ -51,6 +71,7 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
     }
 
     return () => {
+      disposed = true
       resizeObserver?.disconnect()
       map?.remove()
       mapRef.current = null
@@ -61,17 +82,18 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
     const map = mapRef.current
     if (!map || status !== 'ready') return
 
-    const bounds = new LngLatBounds()
     let activePopup: Popup | undefined
     const markers = events.map((event) => {
       const position: [number, number] = [event.longitude, event.latitude]
-      bounds.extend(position)
 
       const button = document.createElement('button')
       button.type = 'button'
       button.className = 'event-marker'
       button.setAttribute('aria-label', `View event: ${event.title}`)
-      button.title = event.title
+      const category = eventCategories[categoryOf(event)]
+      button.style.backgroundColor = category.color
+      button.setAttribute('aria-label', `View ${category.label.toLowerCase()} event: ${event.title}`)
+      button.title = `${category.label}: ${event.title}`
 
       // Use text nodes for report-derived content so titles cannot become HTML.
       const details = document.createElement('div')
@@ -80,6 +102,7 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
       heading.textContent = event.title
       details.append(heading)
       const fields = [
+        ['Category', category.label],
         ['Started', new Date(event.startedAt).toLocaleString()],
         ['Last observed', new Date(event.lastObservedAt).toLocaleString()],
         ['Coordinates', `${event.latitude.toFixed(5)}, ${event.longitude.toFixed(5)}`],
@@ -136,9 +159,6 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
       })
       return marker
     })
-    if (events.length > 0) {
-      map.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 0 })
-    }
 
     return () => {
       activePopup?.remove()

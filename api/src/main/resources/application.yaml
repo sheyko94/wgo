@@ -12,6 +12,10 @@ spring:
       hibernate.default_schema: wgo
 
 wgo:
+  categorization:
+    enabled: ${CATEGORIZATION_ENABLED:false}
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: ${CATEGORIZATION_MODEL:claude-haiku-4-5-20251001}
   embedding:
     provider: ${EMBEDDING_PROVIDER:fixed}
     dimensions: ${EMBEDDING_DIMENSIONS:768}

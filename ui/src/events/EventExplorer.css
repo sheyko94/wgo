@@ -30,3 +30,36 @@
 .events-error {
   color: #922f28;
 }
+
+.category-filters {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #a3b9ac;
+  border-radius: 8px;
+}
+
+.category-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.category-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.category-swatch {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+}
+
+.category-filters button {
+  font: inherit;
+  cursor: pointer;
+}

@@ -1,3 +1,15 @@
+variable "aws_region" {
+  description = "LocalStack region (match AWS_REGION in the root .env)."
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "observation_queue_name" {
+  description = "Local observation queue (match OBSERVATION_QUEUE_NAME in the root .env)."
+  type        = string
+  default     = "observation-processing"
+}
+
 variable "localstack_endpoint" {
   description = "LocalStack SQS endpoint on the host (match LOCALSTACK_PORT if overridden)."
   type        = string

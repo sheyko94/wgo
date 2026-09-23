@@ -1,6 +1,6 @@
 # Local development only. Compose runs LocalStack; Terraform owns its queues.
 provider "aws" {
-  region                      = "us-east-1"
+  region                      = var.aws_region
   access_key                  = "test"
   secret_key                  = "test"
   skip_credentials_validation = true
@@ -13,12 +13,12 @@ provider "aws" {
 }
 
 resource "aws_sqs_queue" "observation_processing_dlq" {
-  name                      = "observation-processing-dlq"
+  name                      = "${var.observation_queue_name}-dlq"
   message_retention_seconds = 1209600
 }
 
 resource "aws_sqs_queue" "observation_processing" {
-  name                       = "observation-processing"
+  name                       = var.observation_queue_name
   visibility_timeout_seconds = var.visibility_timeout_seconds
   receive_wait_time_seconds  = 20
   message_retention_seconds  = 345600

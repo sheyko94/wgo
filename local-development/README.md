@@ -1,7 +1,8 @@
 # Local development and debugging
 
 Run these commands from the repository root. The root `.env` file supplies the
-Compose password and optional port overrides.
+API, UI, Compose, and Terraform settings. The root `.env.example` is the only
+template; keep local values in `.env` and do not create per-component env files.
 
 For map testing, see [the world demo data](demo/README.md): 80 fictional events
 with a mix of city clusters and isolated locations, submitted through the API.
@@ -9,7 +10,7 @@ with a mix of city clusters and isolated locations, submitted through the API.
 ## Start infrastructure
 
 ```sh
-cp .env.example .env
+[ -f .env ] || cp .env.example .env
 # Set POSTGRES_PASSWORD in .env
 docker compose -f local-development/compose.yaml --env-file .env config --quiet
 docker compose -f local-development/compose.yaml --env-file .env up -d --wait --wait-timeout 240
@@ -19,7 +20,9 @@ docker compose -f local-development/compose.yaml --env-file .env ps
 The stack exposes PostgreSQL on `localhost:5432`, Adminer on
 `http://localhost:8081`, LocalStack on `http://localhost:4566`, OpenSearch on
 `http://localhost:9200`, and OpenSearch Dashboards on `http://localhost:5601`.
-Override ports in `.env.example` as needed.
+Override ports in the root `.env` as needed.
+The PostgreSQL password is used when the database is first initialized; editing
+it later does not change the password in an existing database volume.
 
 PostgreSQL and OpenSearch data are stored in `local-development/data/`, which is
 ignored by Git. LocalStack state is ephemeral. The `localstack-init` one-shot service
@@ -40,11 +43,7 @@ Export the root `.env` before starting Spring Boot because Spring Boot does not 
 Docker Compose's `.env` file automatically:
 
 ```sh
-set -a
-. ./.env
-set +a
-cd api
-./mvnw spring-boot:run
+(set -a; . ./.env; set +a; cd api && ./mvnw spring-boot:run)
 ```
 
 Open Swagger UI at [http://localhost:8080/](http://localhost:8080/). The direct UI
@@ -109,9 +108,17 @@ docker compose -f local-development/compose.yaml --env-file .env exec -T localst
 Apply the Terraform queue and redrive policy configuration after LocalStack starts:
 
 ```sh
-terraform -chdir=infra/terraform init
-terraform -chdir=infra/terraform plan -out=local.tfplan
-terraform -chdir=infra/terraform apply local.tfplan
+(
+  set -a
+  . ./.env
+  set +a
+  terraform -chdir=infra/terraform init &&
+  terraform -chdir=infra/terraform plan -out=local.tfplan \
+    -var="localstack_endpoint=${SQS_ENDPOINT:-http://localhost:${LOCALSTACK_PORT:-4566}}" \
+    -var="aws_region=${AWS_REGION:-us-east-1}" \
+    -var="observation_queue_name=${OBSERVATION_QUEUE_NAME:-observation-processing}" &&
+  terraform -chdir=infra/terraform apply local.tfplan
+)
 ```
 
 ## OpenSearch and Dashboards

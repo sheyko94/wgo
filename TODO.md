@@ -1,5 +1,13 @@
 # Project TODO
 
+## Future domain and project name
+
+Keep the current WGO name for now.
+
+- [ ] Consider buying `OpenGrounded.com` if needed in the future; recheck availability
+  before purchasing.
+- [ ] Rename the project to match whichever domain we buy in the future.
+
 ## Incremental UI plan
 
 1. Foundation (done): basic page, development setup, type checking, linting,
@@ -52,11 +60,10 @@ improve and evaluate matching first, then add a visible event summary feature.
 
 ### 3. Event categorization and map filters
 
-- [ ] Define a small category set, such as transport, weather, community gathering,
-  fire, and other.
-- [ ] Classify events with an AI model using validated structured output, with an
+- [x] Define categories: transport, weather, community, fire, infrastructure, and other.
+- [x] Classify events with Claude Haiku 4.5 using validated structured output, with an
   unknown/other fallback for ambiguous cases.
-- [ ] Add category filters, marker colors, and a legend to the map.
+- [x] Add category filters, marker colors, and a legend to the map.
 - [ ] Evaluate category accuracy before expanding the taxonomy.
 
 ### 4. Semantic event search

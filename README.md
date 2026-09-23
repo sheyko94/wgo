@@ -2,6 +2,27 @@
 
 Spring Boot 4.1.1, Java 21 backend, with a React + TypeScript frontend in `ui/`.
 
+## Shared environment
+
+Keep all local settings in the repository root `.env`, using `.env.example` as
+the single template. Copy it once if `.env` does not exist, then set
+`POSTGRES_PASSWORD`. Both files include backend, infrastructure, and UI settings;
+do not create component-specific environment files. Quote values containing shell
+special characters so the file can also be sourced by the shell.
+
+From the repository root, start the API with:
+
+```sh
+(set -a; . ./.env; set +a; cd api && ./mvnw spring-boot:run)
+```
+
+Vite loads the root file automatically via `envDir`; run `npm --prefix ui run dev`.
+Only `VITE_` settings are exposed to browser code. Keep secrets such as
+`ANTHROPIC_API_KEY` without that prefix. Compose uses `--env-file .env`.
+See the local development guide for Terraform commands using the same file.
+Restart the affected process after editing `.env`; rebuild the UI for changes
+to production browser settings. The real `.env` is ignored by Git.
+
 ## Frontend
 
 See [ui/README.md](ui/README.md) for setup and the incremental UI plan.
@@ -124,3 +145,46 @@ fixed provider avoids external calls during local development.
 
 See [local-development/README.md](local-development/README.md) for Swagger UI,
 `curl` examples, API responses, and local debugging commands.
+
+## Event categories and map filters
+
+New events can be classified using the official Anthropic Java SDK and Claude's
+direct API. Export these variables into the API process (or add them to your
+local, ignored `.env` and load it using the setup instructions above):
+
+```sh
+export CATEGORIZATION_ENABLED=true
+export ANTHROPIC_API_KEY=your-key
+# Optional override:
+export CATEGORIZATION_MODEL=claude-haiku-4-5-20251001
+```
+
+Restart the API after configuring it. Haiku 4.5 is the cheapest active direct-API
+Claude model as of September 2026 ($1/million input tokens, $5/million output
+tokens; [pricing](https://platform.claude.com/docs/en/about-claude/pricing)).
+The key is never sent to the browser.
+
+Categories are **Transport**, **Weather**, **Community**, **Fire**,
+**Infrastructure**, and **Other**. Map checkboxes filter the loaded events and
+double as a color legend. Popups show the category; **Show all** resets filters.
+`GET /v1/events` includes the uppercase `category` value.
+
+Classification uses the first report when an event is created, with a JSON schema
+restricting output to the category enum and application-side validation.
+Ambiguous, refused, incomplete or invalid output becomes Other. Categories are
+stored in PostgreSQL. Existing events and events created while categorization is
+disabled default to Other; enabling Claude does not backfill or reclassify them.
+Later matching observations do not change the category. Categories describe
+reports, not verified facts.
+
+Categorization is disabled by default. Enabling it without a key fails startup.
+API errors roll back matching and use the existing SQS retry/DLQ path. The SDK
+uses a 20-second timeout and no internal retries. Once an assignment commits,
+duplicate delivery and projection retries reuse its category without another
+Claude call. A failed call or a database rollback can incur another call on retry.
+The existing database-commit/SQS-publish gap remains unchanged.
+
+Accuracy evaluation is still pending a live key: review representative examples
+for every category, ambiguous reports, multilingual reports and reports containing
+instructions before expanding the taxonomy. No live Claude calls were made during implementation. No new automated tests
+are included.
