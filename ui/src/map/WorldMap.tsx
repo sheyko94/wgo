@@ -11,9 +11,17 @@ const mapStyle = import.meta.env.VITE_MAP_STYLE_URL || 'https://tiles.openfreema
 // Bundle MapLibre's worker and its imports for both Vite dev and production.
 setWorkerUrl(workerUrl)
 
-export function WorldMap({ events }: { events: WorldEvent[] }) {
+export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onViewStateChange, useCurrentLocation }: {
+  events: WorldEvent[]
+  onOpenEvent: (event: WorldEvent) => void
+  selectedEventId: string | null
+  viewState: { longitude: number; latitude: number; zoom: number }
+  onViewStateChange: (viewState: { longitude: number; latitude: number; zoom: number }) => void
+  useCurrentLocation: boolean
+}) {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<Map | null>(null)
+  const initialViewState = useRef(viewState)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [attempt, setAttempt] = useState(0)
 
@@ -29,8 +37,8 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
       map = new Map({
         container: container.current,
         style: mapStyle,
-        center: [10, 35],
-        zoom: 2,
+        center: [initialViewState.current.longitude, initialViewState.current.latitude],
+        zoom: initialViewState.current.zoom,
         renderWorldCopies: false,
         pitch: 0,
         maxPitch: 0,
@@ -45,9 +53,13 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
       map.on('movestart', (event) => {
         if (event.originalEvent) userMovedMap = true
       })
+      map.on('moveend', () => {
+        const center = map?.getCenter()
+        if (center && map) onViewStateChange({ longitude: center.lng, latitude: center.lat, zoom: map.getZoom() })
+      })
       map.once('load', () => {
         setStatus('ready')
-        if (!navigator.geolocation) return
+        if (!useCurrentLocation || !navigator.geolocation) return
 
         navigator.geolocation.getCurrentPosition(
           ({ coords }) => {
@@ -76,7 +88,7 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
       map?.remove()
       mapRef.current = null
     }
-  }, [attempt])
+  }, [attempt, onViewStateChange, useCurrentLocation])
 
   useEffect(() => {
     const map = mapRef.current
@@ -118,6 +130,16 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
         list.append(term, description)
       }
       details.append(list)
+      const expand = document.createElement('button')
+      expand.type = 'button'
+      expand.className = 'event-details-link'
+      expand.textContent = 'Open full event details'
+      expand.addEventListener('click', (click) => {
+        click.stopPropagation()
+        popup.remove()
+        onOpenEvent(event)
+      })
+      details.append(expand)
       const observationsHeading = document.createElement('h3')
       observationsHeading.textContent = `Observations (${event.observations.length})`
       details.append(observationsHeading)
@@ -157,6 +179,10 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
           activePopup = popup
         }
       })
+      if (event.id === selectedEventId) {
+        popup.setLngLat(marker.getLngLat()).addTo(map)
+        activePopup = popup
+      }
       return marker
     })
 
@@ -164,7 +190,7 @@ export function WorldMap({ events }: { events: WorldEvent[] }) {
       activePopup?.remove()
       markers.forEach((marker) => marker.remove())
     }
-  }, [events, status, attempt])
+  }, [events, status, attempt, onOpenEvent, selectedEventId])
 
   return (
     <section className="world-map" aria-label="Explore the world">

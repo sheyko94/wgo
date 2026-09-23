@@ -63,3 +63,117 @@
   font: inherit;
   cursor: pointer;
 }
+.event-details-page {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #d9dee8;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 12px 30px rgb(20 32 55 / 8%);
+}
+
+.back-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #3157a4;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.event-details-heading,
+.event-observations-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.event-details-heading {
+  margin: 1.5rem 0;
+}
+
+.event-details-heading h2 {
+  margin: 0.25rem 0 0;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #667085;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.event-category-badge {
+  border-radius: 999px;
+  color: #fff;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.event-details-summary {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.35fr) 1fr;
+  gap: 0.65rem 1rem;
+  margin: 0 0 2rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #f5f7fb;
+}
+
+.event-details-summary dt,
+.event-details-observations dt {
+  color: #667085;
+  font-weight: 600;
+}
+
+.event-details-summary dd,
+.event-details-observations dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.event-observations-heading {
+  margin-bottom: 0.75rem;
+}
+
+.event-observations-heading h3 {
+  margin: 0;
+}
+
+.event-observations-heading span {
+  color: #667085;
+  font-size: 0.9rem;
+}
+
+.event-details-observations {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.event-details-observations li {
+  padding: 1rem;
+  border: 1px solid #e1e5ed;
+  border-radius: 0.7rem;
+}
+
+.event-details-observations .observation-text {
+  margin-top: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.event-details-observations dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.35fr) 1fr;
+  gap: 0.45rem 1rem;
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
