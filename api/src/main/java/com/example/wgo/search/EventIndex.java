@@ -45,6 +45,8 @@ public class EventIndex {
         validateEmbedding(embedding);
         Map<String, Object> document = new HashMap<>();
         document.put("title", event.getTitle());
+        document.put("summary", event.getSummary());
+        document.put("status", event.getStatus().name());
         document.put("location", Map.of("lat", event.getLatitude(), "lon", event.getLongitude()));
         document.put("startedAt", event.getStartedAt().toString());
         document.put("lastObservedAt", event.getLastObservedAt().toString());
@@ -152,6 +154,8 @@ public class EventIndex {
                     .value()) {
                 client.indices().create(request -> request.index(physicalIndex).mappings(mapping -> mapping.properties(
                                 "title", property -> property.text(text -> text))
+                        .properties("status", property -> property.keyword(keyword -> keyword))
+                        .properties("summary", property -> property.text(text -> text))
                         .properties("location", property -> property.geoPoint(point -> point))
                         .properties("startedAt", property -> property.date(date -> date))
                         .properties("lastObservedAt", property -> property.date(date -> date))

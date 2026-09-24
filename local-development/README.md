@@ -169,3 +169,19 @@ directory:
 docker compose -f local-development/compose.yaml --env-file .env down
 rm -rf local-development/data
 ```
+
+Redis runs on localhost:6379 (`REDIS_PORT` overrides the host port) as a disposable
+shared event summary cache. It has a 128 MB limit and evicts least-recently-used keys.
+Saved summaries remain in PostgreSQL when Redis restarts.
+
+Redis Insight is available at http://localhost:5540 (`REDIS_INSIGHT_PORT` overrides
+the host port), with the **WGO local** connection preconfigured for `redis:6379`.
+Start it with:
+
+```sh
+docker compose -f local-development/compose.yaml --env-file .env up -d redisinsight
+```
+
+Open **WGO local** and filter keys by `wgo:event-summary:v1:*` to inspect saved
+summary JSON and remaining cache lifetimes. Connection settings follow the
+[Redis Insight configuration documentation](https://redis.io/docs/latest/operate/redisinsight/configuration/).

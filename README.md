@@ -188,3 +188,70 @@ Accuracy evaluation is still pending a live key: review representative examples
 for every category, ambiguous reports, multilingual reports and reports containing
 instructions before expanding the taxonomy. No live Claude calls were made during implementation. No new automated tests
 are included.
+
+## Saved event titles and summaries
+
+Start Redis alongside the other local services with Docker Compose, then export
+`SUMMARIZATION_ENABLED=true` and `ANTHROPIC_API_KEY` before starting the API.
+`SUMMARIZATION_MODEL` defaults to `claude-haiku-4-5-20251001`. This feature works
+independently of categorization. Enabling it also enables automatic summaries
+for active events, including existing active events without a summary.
+
+**Summarize event** saves the generated title, summary, supporting observation IDs,
+model/prompt version, generation time, latency, and token usage in PostgreSQL.
+The title replaces the original event title. `POST /v1/events/{id}/summary` returns
+the updated event, including `summary`, `generatedSummary`, and `summaryStale`.
+Event list/search responses include these same fields, so reopening details
+shows saved content without calling Claude. The prompt preserves reported language,
+uncertainty and conflicts; source IDs and structured output are validated, but
+citations do not prove factual support.
+
+Refresh policy:
+
+- `Event.status` is `ACTIVE` or `INACTIVE`, exposed in API responses and details.
+  A new event uses its report timestamp to determine status. The lifecycle worker
+  reconciles statuses every minute, even with AI disabled, using `lastObservedAt`
+  and `EVENT_ACTIVE_WINDOW` (default `PT24H`). A fresh linked report reactivates an
+  inactive event during matching; late historical reports do not extend activity.
+  Changing the window also reconciles existing statuses. Inactive does not mean
+  verified resolved. Activity and summary freshness are separate states.
+- New linked observations increment a revision once; duplicate SQS deliveries do
+  not. A worker checks every minute for active events with unsummarized revisions.
+- `SUMMARY_REFRESH_INTERVAL` (default `PT15M`) is the minimum delay after a completed
+  summary or failed attempt. Incoming reports are combined into the next refresh.
+- Identical source revisions always reuse the saved result, even after cache expiry.
+  Aging alone does not cause AI calls. Inactive events keep their saved summary;
+  a recent observation can reactivate them. The button may create a first summary
+  for a historical event but does not repeatedly regenerate an archived summary.
+- Button requests follow the same cooldown and return the existing summary while
+  an update is pending. A first summary in progress returns 409.
+
+Redis is shared, disposable memory for saved summaries, with versioned keys and
+`SUMMARY_CACHE_TTL` (default `PT24H`). Configure `REDIS_HOST`, `REDIS_PORT`, and optional
+`REDIS_PASSWORD`. Missing or unavailable Redis falls back to PostgreSQL; cache misses
+never generate AI content. Old revision keys expire naturally. Redis has no local
+persistent volume because PostgreSQL remains authoritative.
+
+Generation uses a durable five-minute database claim, released after success or
+failure, to coordinate app instances and clicks. The 60-second Claude request runs
+outside a transaction. Reports arriving during generation remain pending for the
+next update. A crash after the provider responds but before database commit can
+still cause a later paid retry; exactly-once external API billing is not guaranteed.
+
+Saved updates mark the search projection pending. The projector embeds title plus
+summary and indexes both; a separate worker retries pending projections every ten
+seconds without calling Claude. Observation processing uses the same projector,
+acknowledging SQS only after successful indexing. Per-event database locks serialize
+projection writes and event changes. Redis/index failures do not discard a saved
+summary. The scheduler processes batches of 20; refresh timings are minimum delays,
+not deadlines. Scheduling has three threads so generation does not stop queue polling.
+
+Input over 100,000 serialized characters returns 422 without truncation. Provider or
+invalid-output failures return 502 and leave the last saved summary available. Disabled
+generation returns saved content if present, otherwise 503. Usage is logged for cost
+accounting; no dollar estimate is calculated. Model/prompt changes alone do not regenerate
+unchanged sources. Configure positive ISO-8601 durations for refresh and cache settings.
+
+Implementation references: [Claude structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs),
+[Spring Data Redis](https://docs.spring.io/spring-data/redis/reference/redis/redis-cache.html),
+and [JPA locking](https://docs.spring.io/spring-data/jpa/reference/jpa/locking.html).

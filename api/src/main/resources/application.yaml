@@ -1,6 +1,17 @@
 spring:
   application:
     name: wgo
+  task:
+    scheduling:
+      pool:
+        size: 3
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      connect-timeout: 500ms
+      timeout: 500ms
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/wgo}
     username: ${DATABASE_USERNAME:wgo}
@@ -12,6 +23,14 @@ spring:
       hibernate.default_schema: wgo
 
 wgo:
+  events:
+    active-window: ${EVENT_ACTIVE_WINDOW:PT24H}
+  summarization:
+    refresh-interval: ${SUMMARY_REFRESH_INTERVAL:PT15M}
+    cache-ttl: ${SUMMARY_CACHE_TTL:PT24H}
+    enabled: ${SUMMARIZATION_ENABLED:false}
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: ${SUMMARIZATION_MODEL:claude-haiku-4-5-20251001}
   categorization:
     enabled: ${CATEGORIZATION_ENABLED:false}
     api-key: ${ANTHROPIC_API_KEY:}

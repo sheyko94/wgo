@@ -31,6 +31,23 @@
 		<start-class>com.example.wgo.WgoApplication</start-class>
 	</properties>
 	<dependencies>
+		<!-- Native DNS resolution on Apple Silicon and Intel Macs; version managed by Spring Boot. -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns-native-macos</artifactId>
+			<classifier>osx-aarch_64</classifier>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns-native-macos</artifactId>
+			<classifier>osx-x86_64</classifier>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.anthropic</groupId>
 			<artifactId>anthropic-java</artifactId>

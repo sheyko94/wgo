@@ -8,6 +8,7 @@ import com.example.wgo.event.EventCategory;
 import jakarta.annotation.PostConstruct;
 import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -50,7 +51,9 @@ public class CategorizationConfiguration {
     @Bean
     @ConditionalOnProperty(name = "wgo.categorization.enabled", havingValue = "true")
     EventCategorizer claudeEventCategorizer(
-            AnthropicClient client, ObjectMapper json, @Value("${wgo.categorization.model}") String model) {
+            @Qualifier("anthropicClient") AnthropicClient client,
+            ObjectMapper json,
+            @Value("${wgo.categorization.model}") String model) {
         return new ClaudeEventCategorizer(client, json, model);
     }
 

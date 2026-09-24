@@ -25,10 +25,13 @@ public class ObservationEventMatcher {
     private final EventIndex index;
     private final EventCategorizer categorizer;
 
+    @org.springframework.beans.factory.annotation.Value("${wgo.events.active-window:PT24H}")
+    private java.time.Duration activeWindow;
+
     @Transactional
     public MatchResult match(UUID observationId) {
         Observation observation = observations
-                .findById(observationId)
+                .findLockedById(observationId)
                 .orElseThrow(() -> new IllegalArgumentException("Observation not found: " + observationId));
         if (observation.eventId() != null) {
             log.debug("Observation id={} is already assigned to event id={}", observationId, observation.eventId());
@@ -54,6 +57,9 @@ public class ObservationEventMatcher {
             event.setCategory(categorizer.categorize(observation.text()));
             // }
         }
+        event.updateActivityStatus(Instant.now().minus(activeWindow));
+        event.setObservationRevision(event.getObservationRevision() + 1);
+        event.setProjectionPending(true);
         events.save(event);
         observation.assignToEvent(event.getId());
         observations.save(observation);
@@ -66,7 +72,7 @@ public class ObservationEventMatcher {
                 .findCandidates(observation.location(), observation.observedAt(), embeddings.embed(observation.text()))
                 .stream()
                 .map(EventCandidate::eventId)
-                .map(events::findById)
+                .map(events::findLockedById)
                 .flatMap(java.util.Optional::stream)
                 .findFirst()
                 .orElse(null);

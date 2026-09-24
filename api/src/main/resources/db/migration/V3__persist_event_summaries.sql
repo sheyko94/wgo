@@ -1,0 +1,9 @@
+ALTER TABLE events
+  ADD COLUMN summary TEXT,
+  ADD COLUMN summary_payload TEXT,
+  ADD COLUMN observation_revision BIGINT NOT NULL DEFAULT 0,
+  ADD COLUMN summary_revision BIGINT NOT NULL DEFAULT -1,
+  ADD COLUMN summary_generated_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN summary_next_attempt_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ADD COLUMN summary_claim UUID,
+  ADD COLUMN projection_pending BOOLEAN NOT NULL DEFAULT FALSE;

@@ -25,6 +25,10 @@ export interface EventObservation {
 export interface WorldEvent {
   id: string
   title: string
+  summary?: string | null
+  generatedSummary?: EventSummary | null
+  summaryStale?: boolean
+  status?: 'ACTIVE' | 'INACTIVE'
   category?: EventCategory
   latitude: number
   longitude: number
@@ -49,6 +53,8 @@ function isWorldEvent(value: unknown): value is WorldEvent {
   const event = value as Record<string, unknown>
   return typeof event.id === 'string'
     && typeof event.title === 'string'
+    && (event.status === undefined || event.status === 'ACTIVE' || event.status === 'INACTIVE')
+    && (event.generatedSummary == null || isEventSummary(event.generatedSummary))
     && (event.category === undefined || (typeof event.category === 'string' && Object.hasOwn(eventCategories, event.category)))
     && typeof event.latitude === 'number' && Number.isFinite(event.latitude) && Math.abs(event.latitude) <= 90
     && typeof event.longitude === 'number' && Number.isFinite(event.longitude) && Math.abs(event.longitude) <= 180
@@ -67,5 +73,38 @@ export async function fetchEvents(signal: AbortSignal, query = ''): Promise<Worl
   if (!Array.isArray(data) || !data.every(isWorldEvent)) {
     throw new Error('Unexpected event response')
   }
+  return data
+}
+
+export interface EventSummary {
+  title: string
+  summary: string
+  observationIds: string[]
+  generatedAt: string
+}
+
+function isEventSummary(data: unknown): data is EventSummary {
+  if (!data || typeof data !== 'object') return false
+  const value = data as Record<string, unknown>
+  return typeof value.title === 'string' && typeof value.summary === 'string'
+    && typeof value.generatedAt === 'string' && Number.isFinite(Date.parse(value.generatedAt))
+    && Array.isArray(value.observationIds) && value.observationIds.every((id) => typeof id === 'string')
+}
+
+export async function summarizeEvent(id: string, signal: AbortSignal): Promise<WorldEvent> {
+  const response = await fetch(`/v1/events/${encodeURIComponent(id)}/summary`, {
+    method: 'POST', signal, headers: { Accept: 'application/json' },
+  })
+  if (!response.ok) {
+    const messages: Record<number, string> = {
+      404: 'This event no longer exists. Refresh the map.',
+      409: 'The summary is being prepared or waiting for its next attempt. Please try again later.',
+      422: 'This event has too many reports to summarize at once.',
+      503: 'Event summaries are not enabled on the server.',
+    }
+    throw new Error(messages[response.status] ?? 'Could not update the summary. Please try again later.')
+  }
+  const data: unknown = await response.json()
+  if (!isWorldEvent(data) || !data.generatedSummary) throw new Error('Unexpected summary response')
   return data
 }

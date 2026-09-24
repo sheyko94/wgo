@@ -52,16 +52,18 @@ improve and evaluate matching first, then add a visible event summary feature.
 
 ### 2. AI-generated event titles and summaries
 
-- [ ] Start with an on-demand **Summarize event** button in event details.
-- [ ] Generate a short summary from the event's linked observations and provide
+- [x] Start with an on-demand **Summarize event** button in event details.
+- [x] Generate a short summary from the event's linked observations and provide
   references to the observations supporting it.
-- [ ] Describe reported information as reports, preserve uncertainty and conflicting
+- [x] Describe reported information as reports, preserve uncertainty and conflicting
   accounts, and avoid presenting generated summaries as verification.
-- [ ] Suggest a concise event title instead of simply reusing the first report.
+- [x] Suggest a concise event title instead of simply reusing the first report.
 - [ ] Evaluate factual support and usefulness on representative events before
   considering automatic generation when observations arrive.
-- [ ] Decide how generated content is stored and refreshed when source observations
-  change. Track model/prompt versions, latency, and cost.
+- [x] Decide how generated content is stored and refreshed when source observations
+  change. PostgreSQL stores canonical content; Redis caches versioned summaries.
+  Active events refresh changed reports on a configurable interval. Track
+  model/prompt versions, latency, and token usage for cost accounting.
 
 ### 3. Event categorization and map filters
 

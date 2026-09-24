@@ -223,3 +223,25 @@
   color: #53645f;
   font-size: 0.9rem;
 }
+
+.event-ai-summary {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+}
+
+.event-ai-summary h3 { margin-top: 0; }
+.event-ai-summary button {
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: #1d4ed8;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+.event-ai-summary button:disabled { opacity: 0.6; cursor: default; }
+.generated-summary-text { white-space: pre-line; }
+.event-details-observations li:target { outline: 2px solid #2563eb; outline-offset: 4px; }

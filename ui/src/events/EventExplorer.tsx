@@ -89,7 +89,11 @@ export function EventExplorer() {
 
   if (selectedEvent) {
     const currentEvent = events.find((event) => event.id === selectedEvent.id) ?? selectedEvent
-    return <EventDetails event={currentEvent} onBack={() => {
+    return <EventDetails key={currentEvent.id} event={currentEvent} onEventUpdated={(updated) => {
+      setEvents((previous) => previous.map((event) => event.id === updated.id ? updated : event))
+      setSelectedEvent(updated)
+      setSelectedMapEvent(updated)
+    }} onBack={() => {
       const url = new URL(window.location.href)
       url.pathname = '/'
       url.searchParams.set('event', currentEvent.id)

@@ -28,6 +28,26 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private EventStatus status = EventStatus.ACTIVE;
+
+    private String summary;
+
+    @Column(name = "summary_payload")
+    private String summaryPayload;
+
+    @Column(name = "observation_revision", nullable = false)
+    private long observationRevision;
+
+    @Column(name = "summary_revision", nullable = false)
+    private long summaryRevision = -1;
+
+    private Instant summaryGeneratedAt;
+    private Instant summaryNextAttemptAt = Instant.now();
+    private UUID summaryClaim;
+    private boolean projectionPending;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EventCategory category = EventCategory.OTHER;
 
     @Column(nullable = false)
@@ -71,6 +91,14 @@ public class Event {
 
     public GeoPoint location() {
         return new GeoPoint(latitude, longitude);
+    }
+
+    public void updateActivityStatus(Instant activeSince) {
+        EventStatus next = lastObservedAt.isBefore(activeSince) ? EventStatus.INACTIVE : EventStatus.ACTIVE;
+        if (status != next) {
+            status = next;
+            projectionPending = true;
+        }
     }
 
     public void extendTimeRange(Instant observedAt) {

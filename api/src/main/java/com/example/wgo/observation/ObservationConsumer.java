@@ -1,13 +1,9 @@
 package com.example.wgo.observation;
 
 import com.example.wgo.configuration.SqsProperties;
-import com.example.wgo.event.Event;
-import com.example.wgo.event.EventRepository;
-import com.example.wgo.matching.EmbeddingService;
 import com.example.wgo.matching.MatchResult;
 import com.example.wgo.matching.ObservationEventMatcher;
 import com.example.wgo.messaging.SqsMessageReceiver;
-import com.example.wgo.search.EventIndex;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +23,7 @@ public class ObservationConsumer {
     private final SqsMessageReceiver messages;
     private final ObservationService observations;
     private final ObservationEventMatcher matcher;
-    private final EventRepository events;
-    private final EmbeddingService embeddings;
-    private final EventIndex index;
+    private final com.example.wgo.search.EventProjector projector;
 
     @Scheduled(fixedDelayString = "${wgo.sqs.poll-delay-ms:1000}", initialDelayString = "${wgo.sqs.initial-delay-ms:0}")
     public void poll() {
@@ -54,10 +48,7 @@ public class ObservationConsumer {
                     observationId,
                     result.eventId(),
                     result.created());
-            Event event = events.findById(result.eventId())
-                    .orElseThrow(() -> new IllegalStateException("Matched event not found: " + result.eventId()));
-            index.index(event, embeddings.embed(event.getTitle()));
-            log.debug("Indexed event id={} for observation id={}", event.getId(), observationId);
+            projector.project(result.eventId());
             observations.markProcessed(observationId);
             sqs.deleteMessage(DeleteMessageRequest.builder()
                     .queueUrl(queueUrl)
