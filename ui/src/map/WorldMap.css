@@ -125,6 +125,12 @@
   margin: 0.75rem 0 0;
 }
 
+.event-popup-summary {
+  margin: 0 0 0.75rem;
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
 .event-details dt {
   font-weight: 600;
 }
@@ -136,6 +142,13 @@
 .event-details h3 {
   margin: 1rem 0 0.5rem;
   font-size: 0.95rem;
+}
+
+.event-details .event-popup-summary-label {
+  color: #68736f;
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 400;
 }
 
 .event-observations {

@@ -113,6 +113,16 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
       const heading = document.createElement('h2')
       heading.textContent = event.title
       details.append(heading)
+      const savedSummary = event.summary?.trim() || event.generatedSummary?.summary.trim()
+      if (savedSummary) {
+        const summaryHeading = document.createElement('h3')
+        summaryHeading.className = 'event-popup-summary-label'
+        summaryHeading.textContent = 'AI summary'
+        const summary = document.createElement('p')
+        summary.className = 'event-popup-summary'
+        summary.textContent = savedSummary
+        details.append(summaryHeading, summary)
+      }
       const expand = document.createElement('button')
       expand.type = 'button'
       expand.className = 'event-details-link'
@@ -128,7 +138,6 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
         ['Started', new Date(event.startedAt).toLocaleString()],
         ['Last observed', new Date(event.lastObservedAt).toLocaleString()],
         ['Coordinates', `${event.latitude.toFixed(5)}, ${event.longitude.toFixed(5)}`],
-        ['Observations', String(event.observations.length)],
         ['Event ID', event.id],
       ]
       const list = document.createElement('dl')

@@ -83,7 +83,8 @@ public class EventIndex {
         }
     }
 
-    public List<EventCandidate> findSemanticCandidates(List<Double> embedding) {
+    public List<EventCandidate> findSemanticCandidates(List<Double> embedding, List<UUID> eligibleIds) {
+        if (eligibleIds.isEmpty()) return List.of();
         validateEmbedding(embedding);
         try {
             SearchResponse<JsonData> response = client.search(
@@ -91,7 +92,10 @@ public class EventIndex {
                             .size(properties.topK())
                             .minScore(properties.minimumSimilarity() + 1.0)
                             .query(new Query.Builder()
-                                    .scriptScore(script -> script.query(query -> query.matchAll(matchAll -> matchAll))
+                                    .scriptScore(script -> script.query(
+                                                    query -> query.ids(ids -> ids.values(eligibleIds.stream()
+                                                            .map(UUID::toString)
+                                                            .toList())))
                                             .script(scoring -> scoring.inline(inline -> inline.source(
                                                             "cosineSimilarity(params.query_vector, doc['embedding']) + 1.0")
                                                     .params("query_vector", JsonData.of(embedding)))))

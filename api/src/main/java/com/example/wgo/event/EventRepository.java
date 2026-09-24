@@ -11,6 +11,9 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 public interface EventRepository extends JpaRepository<Event, UUID> {
+    List<Event> findAllByCategoryInAndStatusInOrderByStartedAtDescIdAsc(
+            List<EventCategory> categories, List<EventStatus> statuses);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Event e where e.id = :id")
     Optional<Event> findLockedById(UUID id);

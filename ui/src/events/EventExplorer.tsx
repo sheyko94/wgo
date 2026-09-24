@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { WorldMap } from '../map/WorldMap'
-import { categoryOf, eventCategories, fetchEvents } from './events'
-import type { EventCategory, WorldEvent } from './events'
+import { eventCategories, eventStatuses, fetchEvents } from './events'
+import type { EventCategory, EventStatus, WorldEvent } from './events'
 import { EventDetails } from './EventDetails'
 import { EventSearch } from './EventSearch'
 import './EventExplorer.css'
@@ -14,13 +14,13 @@ function eventIdFromUrl() {
 
 export function EventExplorer() {
   const [categories, setCategories] = useState<EventCategory[]>(Object.keys(eventCategories) as EventCategory[])
+  const [statuses, setStatuses] = useState<EventStatus[]>(Object.keys(eventStatuses) as EventStatus[])
   const [events, setEvents] = useState<WorldEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
   const [request, setRequest] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedEvent, setSelectedEvent] = useState<WorldEvent | null>(null)
-  const [selectedMapEvent, setSelectedMapEvent] = useState<WorldEvent | null>(null)
   const [mapEventId, setMapEventId] = useState(eventIdFromUrl)
   const [mapViewState, setMapViewState] = useState(() => {
     const params = new URLSearchParams(window.location.search)
@@ -38,13 +38,12 @@ export function EventExplorer() {
 
   useEffect(() => {
     const controller = new AbortController()
-    fetchEvents(controller.signal, searchQuery)
+    fetchEvents(controller.signal, searchQuery, categories, statuses)
       .then((data) => {
         if (!controller.signal.aborted) {
           setEvents(data)
           const eventFromUrl = eventIdFromUrl() && data.find((event) => event.id === eventIdFromUrl())
           if (eventFromUrl) {
-            setSelectedMapEvent(eventFromUrl)
             if (detailsPath) setSelectedEvent(eventFromUrl)
           }
         }
@@ -56,7 +55,7 @@ export function EventExplorer() {
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [request, detailsPath, searchQuery])
+  }, [request, detailsPath, searchQuery, categories, statuses])
 
   useEffect(() => {
     const url = new URL(window.location.href)
@@ -73,13 +72,15 @@ export function EventExplorer() {
     window.history.replaceState(null, '', url)
   }, [detailsPath, mapEventId, mapViewState])
 
-  const visibleEvents = events.filter((event) => categories.includes(categoryOf(event)))
-  const mapEvents = selectedMapEvent && !visibleEvents.some((event) => event.id === selectedMapEvent.id)
-    ? [selectedMapEvent, ...visibleEvents]
-    : visibleEvents
+  function reloadFilters() {
+    setLoading(true)
+    setFailed(false)
+    setEvents([])
+    setMapEventId(null)
+  }
+
   const openEvent = useCallback((event: WorldEvent) => {
     setMapEventId(event.id)
-    setSelectedMapEvent(event)
     setSelectedEvent(event)
     const url = new URL(window.location.href)
     url.pathname = `/event/${event.id}`
@@ -92,7 +93,6 @@ export function EventExplorer() {
     return <EventDetails key={currentEvent.id} event={currentEvent} onEventUpdated={(updated) => {
       setEvents((previous) => previous.map((event) => event.id === updated.id ? updated : event))
       setSelectedEvent(updated)
-      setSelectedMapEvent(updated)
     }} onBack={() => {
       const url = new URL(window.location.href)
       url.pathname = '/'
@@ -118,15 +118,14 @@ export function EventExplorer() {
       </div>
       <EventSearch activeQuery={searchQuery} onQuery={(query) => {
         setSearchQuery(query)
-        setLoading(true)
-        setFailed(false)
+        reloadFilters()
       }} />
       {failed && <p className="events-error" role="alert">
         Couldn’t load events. Try refreshing.
         {events.length > 0 && ' Previously loaded events are still shown.'}
       </p>}
       {!loading && !failed && events.length === 0 && (
-        <p>No events yet. Events appear after observations are processed. Refresh to check again.</p>
+        <p>No events match your search and filters. Try different text or select more categories and statuses.</p>
       )}
       <fieldset className="category-filters">
         <legend>Event categories</legend>
@@ -134,22 +133,41 @@ export function EventExplorer() {
           {(Object.keys(eventCategories) as EventCategory[]).map((category) => (
             <label key={category}>
               <input type="checkbox" checked={categories.includes(category)} onChange={(change) => {
+                reloadFilters()
                 setCategories((selected) => change.target.checked
                   ? [...selected, category] : selected.filter((value) => value !== category))
               }} />
               <span className="category-swatch" style={{ backgroundColor: eventCategories[category].color }} aria-hidden="true" />
               {eventCategories[category].label}
-              <span>({events.filter((event) => categoryOf(event) === category).length})</span>
             </label>
           ))}
         </div>
-        <button type="button" onClick={() => setCategories(Object.keys(eventCategories) as EventCategory[])}>Show all</button>
+        <button type="button" onClick={() => {
+          reloadFilters()
+          setCategories(Object.keys(eventCategories) as EventCategory[])
+        }}>Show all categories</button>
       </fieldset>
-      {events.length > 0 && <p role="status">
-        {visibleEvents.length === 0 ? 'No events match the selected categories.' : `${visibleEvents.length} of ${events.length} events shown`}
-      </p>}
+      <fieldset className="category-filters">
+        <legend>Event status</legend>
+        <div className="category-options">
+          {(Object.keys(eventStatuses) as EventStatus[]).map((status) => (
+            <label key={status}>
+              <input type="checkbox" checked={statuses.includes(status)} onChange={(change) => {
+                reloadFilters()
+                setStatuses((selected) => change.target.checked
+                  ? [...selected, status] : selected.filter((value) => value !== status))
+              }} />
+              {eventStatuses[status]}
+            </label>
+          ))}
+        </div>
+        <button type="button" onClick={() => {
+          reloadFilters()
+          setStatuses(Object.keys(eventStatuses) as EventStatus[])
+        }}>Show all statuses</button>
+      </fieldset>
       <WorldMap
-        events={mapEvents}
+        events={events}
         selectedEventId={mapEventId}
         viewState={mapViewState}
         onViewStateChange={setMapViewState}

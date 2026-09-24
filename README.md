@@ -165,8 +165,8 @@ tokens; [pricing](https://platform.claude.com/docs/en/about-claude/pricing)).
 The key is never sent to the browser.
 
 Categories are **Transport**, **Weather**, **Community**, **Fire**,
-**Infrastructure**, and **Other**. Map checkboxes filter the loaded events and
-double as a color legend. Popups show the category; **Show all** resets filters.
+**Infrastructure**, and **Other**. Map checkboxes send category and status filters to the backend search endpoint.
+Category colors double as a legend. Popups show the category.
 `GET /v1/events` includes the uppercase `category` value.
 
 Classification uses the first report when an event is created, with a JSON schema
@@ -255,3 +255,26 @@ unchanged sources. Configure positive ISO-8601 durations for refresh and cache s
 Implementation references: [Claude structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs),
 [Spring Data Redis](https://docs.spring.io/spring-data/redis/reference/redis/redis-cache.html),
 and [JPA locking](https://docs.spring.io/spring-data/jpa/reference/jpa/locking.html).
+
+## Combined event search
+
+The map always calls `GET /v1/events/search`. Optional parameters:
+
+- `q`: semantic search text; blank or omitted skips embedding and semantic ranking.
+- `categories`: comma-separated categories, for example `FIRE,WEATHER`.
+- `statuses`: comma-separated statuses, for example `ACTIVE,INACTIVE`.
+
+Omitted category/status parameters include all values; explicitly empty parameters
+select none and return an empty list. Unknown enum values return 400. Multiple
+values within a filter are ORed; categories, statuses, and text combine with AND.
+
+Example: `/v1/events/search?q=smoke&categories=FIRE&statuses=ACTIVE`.
+PostgreSQL selects eligible events using canonical category/status fields. For text
+search, their IDs restrict the OpenSearch scoring query before the configured top-K
+limit is applied. Without text, all eligible events are returned newest-first.
+This avoids reliance on potentially outdated category/status search projections;
+semantic results still require indexed embeddings. The eligible-ID list is intended
+for the current MVP dataset; a larger dataset will need paginated/indexed filtering.
+UI filter changes cancel obsolete requests and clear previous results, including
+previously selected markers that may no longer match. No AI call is made for category
+or status filtering without text. `GET /v1/events` remains available for existing clients.

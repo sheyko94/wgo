@@ -7,6 +7,9 @@ export const eventCategories = {
   OTHER: { label: 'Other', color: '#64748b' },
 } as const
 
+export const eventStatuses = { ACTIVE: 'Active', INACTIVE: 'Inactive' } as const
+export type EventStatus = keyof typeof eventStatuses
+
 export type EventCategory = keyof typeof eventCategories
 
 export function categoryOf(event: WorldEvent): EventCategory {
@@ -28,7 +31,7 @@ export interface WorldEvent {
   summary?: string | null
   generatedSummary?: EventSummary | null
   summaryStale?: boolean
-  status?: 'ACTIVE' | 'INACTIVE'
+  status?: EventStatus
   category?: EventCategory
   latitude: number
   longitude: number
@@ -53,6 +56,7 @@ function isWorldEvent(value: unknown): value is WorldEvent {
   const event = value as Record<string, unknown>
   return typeof event.id === 'string'
     && typeof event.title === 'string'
+    && (event.summary == null || typeof event.summary === 'string')
     && (event.status === undefined || event.status === 'ACTIVE' || event.status === 'INACTIVE')
     && (event.generatedSummary == null || isEventSummary(event.generatedSummary))
     && (event.category === undefined || (typeof event.category === 'string' && Object.hasOwn(eventCategories, event.category)))
@@ -63,10 +67,17 @@ function isWorldEvent(value: unknown): value is WorldEvent {
     && Array.isArray(event.observations) && event.observations.every(isObservation)
 }
 
-export async function fetchEvents(signal: AbortSignal, query = ''): Promise<WorldEvent[]> {
-  const endpoint = query.trim()
-    ? `/v1/events/search?q=${encodeURIComponent(query.trim())}`
-    : '/v1/events'
+export async function fetchEvents(
+  signal: AbortSignal,
+  query = '',
+  categories?: EventCategory[],
+  statuses?: EventStatus[],
+): Promise<WorldEvent[]> {
+  const params = new URLSearchParams()
+  if (query.trim()) params.set('q', query.trim())
+  if (categories !== undefined) params.set('categories', categories.join(','))
+  if (statuses !== undefined) params.set('statuses', statuses.join(','))
+  const endpoint = `/v1/events/search?${params}`
   const response = await fetch(endpoint, { signal, headers: { Accept: 'application/json' } })
   if (!response.ok) throw new Error(`Event request failed (${response.status})`)
   const data: unknown = await response.json()

@@ -1,7 +1,5 @@
 package com.example.wgo.event;
 
-import com.example.wgo.matching.EmbeddingService;
-import com.example.wgo.search.EventIndex;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +19,6 @@ public class EventController {
 
     private final EventService events;
     private final EventSummaryWorkflow summaries;
-    private final EmbeddingService embeddings;
-    private final EventIndex eventIndex;
 
     @PostMapping("/{id}/summary")
     public EventResponse summarize(@PathVariable UUID id) {
@@ -36,12 +32,10 @@ public class EventController {
     }
 
     @GetMapping("/search")
-    public List<EventResponse> search(@RequestParam String q) {
-        if (q.isBlank()) return List.of();
-        log.info("Semantic event search requested: query={}", q);
-        List<UUID> ids = eventIndex.findSemanticCandidates(embeddings.embed(q)).stream()
-                .map(candidate -> candidate.eventId())
-                .toList();
-        return events.findByIds(ids);
+    public List<EventResponse> search(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(required = false) List<EventCategory> categories,
+            @RequestParam(required = false) List<EventStatus> statuses) {
+        return events.search(q.trim(), categories, statuses);
     }
 }
