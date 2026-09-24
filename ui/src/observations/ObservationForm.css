@@ -1,0 +1,44 @@
+.observation-dialog {
+  width: min(32rem, calc(100vw - 2rem));
+  max-height: calc(100svh - 2rem);
+  box-sizing: border-box;
+  overflow-y: auto;
+  border: 1px solid #a3b9ac;
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: #18322d;
+}
+.observation-dialog::backdrop { background: #17203388; }
+.observation-dialog h2 { margin-top: 0; }
+.observation-dialog p { overflow-wrap: anywhere; }
+.observation-dialog label { display: block; margin: 1rem 0 0.4rem; font-weight: 600; }
+.observation-dialog input, .observation-dialog textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid #a3b9ac;
+  border-radius: 6px;
+  font: inherit;
+}
+.observation-dialog textarea { resize: vertical; }
+.report-hint { color: #53645f; font-size: 0.875rem; }
+.report-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
+.report-actions button, .report-map-controls button, .event-add-observation {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #a3b9ac;
+  border-radius: 6px;
+  background: white;
+  color: #18322d;
+  font: inherit;
+  cursor: pointer;
+}
+.report-actions button[type='submit'], .report-map-controls > button { background: #18322d; color: white; }
+.report-actions button:disabled, .report-map-controls button:disabled { opacity: 0.6; cursor: default; }
+.report-map-controls { margin-top: 1rem; }
+.report-map-controls p { margin: 0.5rem 0; }
+.report-selection-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.report-confirmation { padding: 0.75rem; background: #eaf0eb; overflow-wrap: anywhere; }
+.event-popup-observations-heading { display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; margin-top: 1rem; }
+.event-details .event-popup-observations-heading h3 { margin: 0; }
+.event-add-observation { font-size: 0.75rem; }

@@ -278,3 +278,29 @@ for the current MVP dataset; a larger dataset will need paginated/indexed filter
 UI filter changes cancel obsolete requests and clear previous results, including
 previously selected markers that may no longer match. No AI call is made for category
 or status filtering without text. `GET /v1/events` remains available for existing clients.
+
+## Reporting from the map
+
+Click **Report observation**, then click/tap the map to choose coordinates. Keyboard users
+can pan with arrow keys and press Enter or **Use map center**; Escape or **Cancel
+selection** exits selection mode. A marker shows the selected point while the form
+is open. Enter a description and observation time (defaults to now in the browser's
+local timezone). The description is sent as the existing observation `text` field.
+Submission creates an observation, and matching
+may create an event or attach it to an existing related event.
+
+An event popup also has **Add observation** next to its observations heading. This
+uses that event's coordinates and calls `POST /v1/events/{id}/observations` with the
+same `{text, location, observedAt}` body as `POST /v1/observations`. A missing target
+returns 404; valid submissions return 202 and an observation ID. The intended event
+is stored separately as `requested_event_id`; the worker assigns it once through
+the normal processing flow, updates event activity/revisions, and reindexes before
+acknowledging. Explicitly targeted observations bypass semantic matching.
+
+Report text is limited to 5,200 characters on the backend; the form permits a
+5,200-character description. Submission disables duplicate
+clicks, preserves form values on failure, and reports queued processing rather than
+claiming that an event already exists. Use **Refresh events** after processing;
+active search filters may hide the resulting event. The existing database-commit/
+SQS-publish gap still applies, so an uncertain submission error may mean a report
+was saved even if queue publication failed. No automatic POST retries are made.

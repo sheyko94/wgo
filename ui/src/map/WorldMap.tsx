@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Map, Marker, NavigationControl, Popup, setWorkerUrl } from 'maplibre-gl'
 import { categoryOf, eventCategories } from '../events/events'
+import type { ReportLocation } from '../observations/ObservationForm'
 import type { WorldEvent } from '../events/events'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -11,7 +12,12 @@ const mapStyle = import.meta.env.VITE_MAP_STYLE_URL || 'https://tiles.openfreema
 // Bundle MapLibre's worker and its imports for both Vite dev and production.
 setWorkerUrl(workerUrl)
 
-export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onViewStateChange, useCurrentLocation }: {
+export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onViewStateChange, useCurrentLocation, selectingLocation, reportLocation, onPickLocation, onCancelSelection, onAddObservation }: {
+  selectingLocation: boolean
+  reportLocation: ReportLocation | null
+  onPickLocation: (location: ReportLocation) => void
+  onCancelSelection: () => void
+  onAddObservation: (event: WorldEvent) => void
   events: WorldEvent[]
   onOpenEvent: (event: WorldEvent) => void
   selectedEventId: string | null
@@ -21,6 +27,8 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
 }) {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<Map | null>(null)
+  const selectingRef = useRef(false)
+  useEffect(() => { selectingRef.current = selectingLocation }, [selectingLocation])
   const initialViewState = useRef(viewState)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [attempt, setAttempt] = useState(0)
@@ -64,7 +72,7 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
         navigator.geolocation.getCurrentPosition(
           ({ coords }) => {
             // A delayed location result must not interrupt navigation or a new map instance.
-            if (disposed || userMovedMap) return
+            if (disposed || userMovedMap || selectingRef.current) return
             map?.jumpTo({ center: [coords.longitude, coords.latitude], zoom: 10 })
           },
           () => { /* Keep the world view when location is denied or unavailable. */ },
@@ -92,6 +100,38 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
 
   useEffect(() => {
     const map = mapRef.current
+    if (!map || status !== 'ready' || !selectingLocation) return
+    const canvas = map.getCanvas()
+    canvas.style.cursor = 'crosshair'
+    canvas.focus()
+    const pick = (event: { lngLat: { lat: number; lng: number } }) => {
+      onPickLocation({ latitude: event.lngLat.lat, longitude: ((event.lngLat.lng + 180) % 360 + 360) % 360 - 180 })
+    }
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCancelSelection()
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        pick({ lngLat: map.getCenter() })
+      }
+    }
+    map.on('click', pick)
+    canvas.addEventListener('keydown', keyboard)
+    return () => {
+      canvas.style.cursor = ''
+      map.off('click', pick)
+      canvas.removeEventListener('keydown', keyboard)
+    }
+  }, [selectingLocation, status, attempt, onPickLocation, onCancelSelection])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || status !== 'ready' || !reportLocation) return
+    const pin = new Marker({ color: '#18322d' }).setLngLat([reportLocation.longitude, reportLocation.latitude]).addTo(map)
+    return () => { pin.remove() }
+  }, [reportLocation, status, attempt])
+
+  useEffect(() => {
+    const map = mapRef.current
     if (!map || status !== 'ready') return
 
     let activePopup: Popup | undefined
@@ -106,6 +146,7 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
       button.style.backgroundColor = category.color
       button.setAttribute('aria-label', `View ${category.label.toLowerCase()} event: ${event.title}`)
       button.title = `${category.label}: ${event.title}`
+      if (selectingLocation) button.setAttribute('aria-label', `Select location of ${event.title}`)
 
       // Use text nodes for report-derived content so titles cannot become HTML.
       const details = document.createElement('div')
@@ -152,6 +193,19 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
       const observationsHeading = document.createElement('h3')
       observationsHeading.textContent = `Observations (${event.observations.length})`
       details.append(observationsHeading)
+      const addObservation = document.createElement('button')
+      addObservation.type = 'button'
+      addObservation.className = 'event-add-observation'
+      addObservation.textContent = 'Add observation'
+      addObservation.addEventListener('click', (click) => {
+        click.stopPropagation()
+        popup.remove()
+        onAddObservation(event)
+      })
+      const observationAction = document.createElement('div')
+      observationAction.className = 'event-popup-observation-action'
+      observationAction.append(addObservation)
+      details.append(observationAction)
       const observationsList = document.createElement('ul')
       observationsList.className = 'event-observations'
       for (const observation of [...event.observations].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))) {
@@ -180,6 +234,10 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
       // Native button activation supports mouse, Enter, and Space consistently.
       button.addEventListener('click', (click) => {
         click.stopPropagation()
+        if (selectingLocation) {
+          onPickLocation({ latitude: event.latitude, longitude: event.longitude })
+          return
+        }
         if (popup.isOpen()) {
           popup.remove()
         } else {
@@ -189,7 +247,7 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
           activePopup = popup
         }
       })
-      if (event.id === selectedEventId) {
+      if (!selectingLocation && event.id === selectedEventId) {
         popup.setLngLat(marker.getLngLat()).addTo(map)
         details.scrollTop = 0
         activePopup = popup
@@ -201,11 +259,21 @@ export function WorldMap({ events, onOpenEvent, selectedEventId, viewState, onVi
       activePopup?.remove()
       markers.forEach((marker) => marker.remove())
     }
-  }, [events, status, attempt, onOpenEvent, selectedEventId])
+  }, [events, status, attempt, onOpenEvent, selectedEventId, selectingLocation, onPickLocation, onAddObservation])
 
   return (
     <section className="world-map" aria-label="Explore the world">
       <div className="world-map-canvas" ref={container} />
+      {selectingLocation && status === 'ready' && <div className="map-message report-map-controls">
+        <p role="status">Click a location to report an observation, or pan the map and select its center.</p>
+        <div className="report-selection-actions">
+          <button type="button" onClick={() => {
+            const center = mapRef.current?.getCenter()
+            if (center) onPickLocation({ latitude: center.lat, longitude: ((center.lng + 180) % 360 + 360) % 360 - 180 })
+          }}>Use map center</button>
+          <button type="button" onClick={onCancelSelection}>Cancel selection</button>
+        </div>
+      </div>}
       {status === 'loading' && (
         <p className="map-message" role="status">Loading map…</p>
       )}

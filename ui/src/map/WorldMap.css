@@ -151,6 +151,39 @@
   font-weight: 400;
 }
 
+.event-popup-observation-action {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.event-details .event-add-observation {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #c5d2ca;
+  border-radius: 5px;
+  background: #fff;
+  color: #31584b;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.event-details .event-add-observation:hover {
+  border-color: #21765b;
+  background: #f1f7f3;
+  color: #18322d;
+}
+
+.event-details .event-add-observation:focus-visible {
+  outline: 3px solid #21765b;
+  outline-offset: 2px;
+}
+
 .event-observations {
   list-style: none;
   padding: 0;

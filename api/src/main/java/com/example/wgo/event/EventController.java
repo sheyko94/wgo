@@ -19,6 +19,16 @@ public class EventController {
 
     private final EventService events;
     private final EventSummaryWorkflow summaries;
+    private final com.example.wgo.observation.ObservationService observations;
+
+    @PostMapping("/{id}/observations")
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.ACCEPTED)
+    public com.example.wgo.observation.CreateObservationResponse addObservation(
+            @PathVariable UUID id,
+            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody
+                    com.example.wgo.observation.CreateObservationRequest request) {
+        return observations.createForEvent(request, id);
+    }
 
     @PostMapping("/{id}/summary")
     public EventResponse summarize(@PathVariable UUID id) {

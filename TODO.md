@@ -20,7 +20,7 @@ Keep the current WGO name for now.
    URL-backed event selection and map position restoration.
 5. Observations: add a backend observation read endpoint, display markers, and
    toggle observation/event visibility.
-6. Creation: select coordinates on the map and submit `POST /v1/observations`.
+6. [x] Creation: select coordinates on the map and submit `POST /v1/observations`.
    Explain processing state; events appear after the backend processes reports
    and the user refreshes.
 

@@ -38,7 +38,10 @@ public class ObservationEventMatcher {
             return new MatchResult(observation.id(), observation.eventId(), false);
         }
 
-        Event event = findExistingEvent(observation);
+        Event event = observation.requestedEventId() == null
+                ? findExistingEvent(observation)
+                : events.findLockedById(observation.requestedEventId())
+                        .orElseThrow(() -> new IllegalStateException("Requested event no longer exists"));
         boolean created = event == null;
         if (created) {
             event = Event.builder()

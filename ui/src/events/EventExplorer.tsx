@@ -4,6 +4,8 @@ import { eventCategories, eventStatuses, fetchEvents } from './events'
 import type { EventCategory, EventStatus, WorldEvent } from './events'
 import { EventDetails } from './EventDetails'
 import { EventSearch } from './EventSearch'
+import { ObservationForm } from '../observations/ObservationForm'
+import type { ReportDraft, ReportLocation } from '../observations/ObservationForm'
 import './EventExplorer.css'
 
 function eventIdFromUrl() {
@@ -13,6 +15,9 @@ function eventIdFromUrl() {
 }
 
 export function EventExplorer() {
+  const [selectingLocation, setSelectingLocation] = useState(false)
+  const [reportDraft, setReportDraft] = useState<ReportDraft | null>(null)
+  const [submittedObservation, setSubmittedObservation] = useState<string | null>(null)
   const [categories, setCategories] = useState<EventCategory[]>(Object.keys(eventCategories) as EventCategory[])
   const [statuses, setStatuses] = useState<EventStatus[]>(Object.keys(eventStatuses) as EventStatus[])
   const [events, setEvents] = useState<WorldEvent[]>([])
@@ -31,6 +36,17 @@ export function EventExplorer() {
       ? { longitude, latitude, zoom }
       : { longitude: 10, latitude: 35, zoom: 2 }
   })
+  const pickLocation = useCallback((location: ReportLocation) => {
+    setSelectingLocation(false)
+    setReportDraft({ location })
+  }, [])
+  const cancelSelection = useCallback(() => setSelectingLocation(false), [])
+  const addObservation = useCallback((event: WorldEvent) => {
+    setSelectingLocation(false)
+    setMapEventId(null)
+    setReportDraft({ event, location: { latitude: event.latitude, longitude: event.longitude } })
+    setSubmittedObservation(null)
+  }, [])
   const detailsPath = /^\/event\/[^/]+$/.test(window.location.pathname)
   const hasUrlViewState = new URLSearchParams(window.location.search).has('longitude')
     && new URLSearchParams(window.location.search).has('latitude')
@@ -110,11 +126,18 @@ export function EventExplorer() {
             ? 'Events unavailable'
             : `${events.length} ${events.length === 1 ? 'event' : 'events'} loaded`}
         </p>
+        <div className="events-toolbar-actions">
+        <button type="button" disabled={selectingLocation || reportDraft !== null} onClick={() => {
+          setSubmittedObservation(null)
+          setMapEventId(null)
+          setSelectingLocation(true)
+        }}>Report observation</button>
         <button type="button" disabled={loading} onClick={() => {
           setLoading(true)
           setFailed(false)
           setRequest((value) => value + 1)
         }}>{loading ? 'Loading…' : 'Refresh events'}</button>
+        </div>
       </div>
       <EventSearch activeQuery={searchQuery} onQuery={(query) => {
         setSearchQuery(query)
@@ -166,7 +189,23 @@ export function EventExplorer() {
           setStatuses(Object.keys(eventStatuses) as EventStatus[])
         }}>Show all statuses</button>
       </fieldset>
+      {selectingLocation && <div className="report-map-controls">
+          <p role="status">Select a location on the map. Press Enter on the map to use its center, or Escape to cancel.</p>
+          <button type="button" onClick={cancelSelection}>Cancel reporting</button>
+      </div>}
+      {submittedObservation && <p role="status" className="report-confirmation">
+        Observation submitted ({submittedObservation}). Processing may take a moment. Refresh events to see it; your current filters may hide the event.
+      </p>}
+      {reportDraft && <ObservationForm draft={reportDraft} onCancel={() => setReportDraft(null)} onSubmitted={(id) => {
+        setReportDraft(null)
+        setSubmittedObservation(id)
+      }} />}
       <WorldMap
+        selectingLocation={selectingLocation}
+        reportLocation={reportDraft?.location ?? null}
+        onPickLocation={pickLocation}
+        onCancelSelection={cancelSelection}
+        onAddObservation={addObservation}
         events={events}
         selectedEventId={mapEventId}
         viewState={mapViewState}

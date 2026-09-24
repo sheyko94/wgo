@@ -16,28 +16,42 @@ public class ObservationService {
 
     private final ObservationRepository observations;
     private final ObservationPublisher publisher;
+    private final com.example.wgo.event.EventRepository events;
     private final TransactionTemplate transaction;
 
     public ObservationService(
             ObservationRepository observations,
             ObservationPublisher publisher,
+            com.example.wgo.event.EventRepository events,
             PlatformTransactionManager transactionManager) {
         this.observations = observations;
         this.publisher = publisher;
+        this.events = events;
         this.transaction = new TransactionTemplate(transactionManager);
         this.transaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
 
     public CreateObservationResponse create(CreateObservationRequest request) {
+        return createForEvent(request, null);
+    }
+
+    public CreateObservationResponse createForEvent(CreateObservationRequest request, UUID eventId) {
         Observation observation = Observation.builder()
                 .id(UUID.randomUUID())
-                .text(request.text())
+                .text(request.text().trim())
+                .requestedEventId(eventId)
                 .location(request.location())
                 .observedAt(request.observedAt())
                 .processingStatus(ProcessingStatus.PENDING)
                 .createdAt(Instant.now())
                 .build();
-        transaction.executeWithoutResult(status -> observations.saveAndFlush(observation));
+        transaction.executeWithoutResult(status -> {
+            if (eventId != null && events.findLockedById(eventId).isEmpty()) {
+                throw new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Event not found");
+            }
+            observations.saveAndFlush(observation);
+        });
         log.info("Persisted observation id={} status={}", observation.id(), observation.processingStatus());
         // Commit before publishing so a consumer can immediately read the observation.
         // v0.1 accepts the commit/publish gap; there is no transactional outbox.

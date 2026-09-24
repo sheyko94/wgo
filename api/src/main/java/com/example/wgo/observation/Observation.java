@@ -45,6 +45,9 @@ public class Observation {
     @Column(name = "event_id")
     private UUID eventId;
 
+    @Column(name = "requested_event_id")
+    private UUID requestedEventId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "processing_status", nullable = false)
     private ProcessingStatus processingStatus;
@@ -62,6 +65,7 @@ public class Observation {
             GeoPoint location,
             Instant observedAt,
             UUID eventId,
+            UUID requestedEventId,
             ProcessingStatus processingStatus,
             Instant createdAt,
             Instant processedAt) {
@@ -71,6 +75,7 @@ public class Observation {
         this.longitude = location.longitude();
         this.observedAt = observedAt;
         this.eventId = eventId;
+        this.requestedEventId = requestedEventId;
         this.processingStatus = processingStatus;
         this.createdAt = createdAt;
         this.processedAt = processedAt;
